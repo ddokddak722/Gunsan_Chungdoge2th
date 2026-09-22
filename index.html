@@ -1,0 +1,2078 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>청도지2기 대기실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e1a;
+    --bg-grid: #0d1424;
+    --panel:#121a2e;
+    --panel-2:#16203a;
+    --border:#28345a;
+    --border-lit:#3a4a7a;
+    --text:#e9ecf8;
+    --text-dim:#8b93b8;
+    --text-faint:#5a6390;
+    --accent:#00e5ff;
+    --accent-dim:#0a8fa8;
+    --accent2:#ff8a3d;
+    --success:#4ade80;
+    --success-dim:#1f6b46;
+    --danger:#f8717a;
+    --danger-dim:#7a2f34;
+    --font-display:'Black Han Sans','Noto Sans KR',sans-serif;
+    --font-body:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;
+    --font-mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(0,229,255,0.08), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    padding-inline:16px;
+    min-height:100%;
+  }
+  h1,h2,h3{font-family:var(--font-display); font-weight:400; text-wrap:balance; margin:0;}
+  button{font-family:var(--font-body); cursor:pointer;}
+  input,textarea,select{font-family:var(--font-body);}
+  ::selection{background:var(--accent); color:#00121a;}
+  a{color:var(--accent);}
+
+  .wrap{max-width:1080px; margin:0 auto; padding-block:28px 60px;}
+
+  /* header */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    flex-wrap:wrap;
+    padding-bottom:20px; margin-bottom:14px;
+    border-bottom:2px solid var(--border);
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand-badge{
+    width:44px; height:44px; border-radius:10px;
+    background:linear-gradient(135deg, var(--accent), #0077a8);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-size:15px; letter-spacing:0.3px; color:#00121a;
+    box-shadow:0 0 0 2px var(--border-lit), 0 0 18px rgba(0,229,255,0.35);
+    flex-shrink:0;
+  }
+  .brand-title{font-family:var(--font-display); font-size:24px; letter-spacing:0.5px; line-height:1;}
+  .brand-sub{color:var(--text-dim); font-size:12.5px; margin-top:4px; display:flex; align-items:center; gap:6px;}
+  .live-dot{
+    width:7px; height:7px; border-radius:50%; background:var(--success);
+    box-shadow:0 0 6px var(--success);
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce){ .live-dot{animation:none;} }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+  .btn{
+    font-family:var(--font-display);
+    font-size:15px; letter-spacing:0.3px;
+    padding:12px 20px;
+    border-radius:8px;
+    border:2px solid var(--border-lit);
+    background:var(--panel-2);
+    color:var(--text);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 0 rgba(0,0,0,0.4);
+    transition:transform .06s ease, box-shadow .06s ease, background .15s ease;
+  }
+  .btn:hover:not(:disabled){background:#1c2745;}
+  .btn:active:not(:disabled){transform:translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 rgba(0,0,0,0.4);}
+  .btn:disabled{opacity:0.4; cursor:not-allowed;}
+  .btn-primary{
+    background:linear-gradient(180deg, #00c2df, #0090ab);
+    border-color:#00e5ff;
+    color:#00121a;
+  }
+  .btn-primary:hover:not(:disabled){background:linear-gradient(180deg, #10d4f0, #00a0bd);}
+  .btn-danger{background:linear-gradient(180deg, #ef5a63, #b8333c); border-color:#f8717a; color:#1a0506;}
+  .btn-ghost{background:transparent; border-color:var(--border); color:var(--text-dim);}
+  .btn-ghost:hover:not(:disabled){color:var(--text); border-color:var(--border-lit);}
+  .btn-sm{padding:8px 14px; font-size:13px;}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  .banner{
+    padding:12px 16px; border-radius:8px;
+    background:rgba(248,113,122,0.1); border:1px solid var(--danger-dim);
+    color:#ffc2c6; font-size:13.5px; line-height:1.5; margin-bottom:20px;
+  }
+  .banner[hidden]{display:none;}
+
+  /* tabs */
+  .tabbar{display:flex; gap:6px; margin-bottom:22px; border-bottom:2px solid var(--border); flex-wrap:wrap;}
+  .tab{
+    padding:10px 6px; margin-bottom:-2px;
+    background:transparent; border:none; border-bottom:3px solid transparent;
+    color:var(--text-dim); font-family:var(--font-display); font-size:15px; letter-spacing:0.3px;
+  }
+  .tab.active{color:var(--text); border-bottom-color:var(--accent);}
+  .tab:hover:not(.active){color:var(--text);}
+
+  .panel[hidden]{display:none;}
+
+  /* grid (rooms) */
+  .status-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
+  .room-count{color:var(--text-dim); font-size:13px; font-family:var(--font-mono);}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(268px, 1fr));
+    gap:16px;
+  }
+  .empty, .loading{
+    text-align:center; padding:60px 20px; color:var(--text-dim);
+    border:2px dashed var(--border); border-radius:12px;
+  }
+  .empty[hidden], .loading[hidden]{display:none;}
+  .empty .big-emoji{font-size:40px; margin-bottom:10px;}
+
+  .card{
+    text-align:left;
+    background:var(--panel);
+    border:2px solid var(--border);
+    border-radius:12px;
+    padding:0; overflow:hidden;
+    display:flex; flex-direction:column;
+    color:var(--text);
+    transition:border-color .12s ease, transform .12s ease;
+  }
+  .card:hover{border-color:var(--border-lit); transform:translateY(-2px);}
+  .card-thumb{
+    height:120px; width:100%; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    font-size:40px;
+    border-bottom:2px solid var(--border);
+  }
+  .card-thumb img{width:100%; height:100%; object-fit:cover;}
+  .badge{
+    position:absolute; top:8px; left:8px;
+    font-family:var(--font-mono); font-weight:700; font-size:11px;
+    padding:4px 8px; border-radius:5px; letter-spacing:0.3px;
+  }
+  .badge.open{background:rgba(74,222,128,0.16); color:var(--success); border:1px solid var(--success-dim);}
+  .badge.full{background:rgba(255,138,61,0.16); color:var(--accent2); border:1px solid #7a4a1f;}
+  .badge.closed{background:rgba(139,147,184,0.14); color:var(--text-dim); border:1px solid var(--border);}
+  .card-body{padding:14px 14px 16px; display:flex; flex-direction:column; gap:8px; flex:1;}
+  .card-title{font-family:var(--font-display); font-size:17px; line-height:1.3;}
+  .card-meta{display:flex; flex-direction:column; gap:4px; font-size:12.5px; color:var(--text-dim);}
+  .card-meta span b{color:var(--text); font-weight:500;}
+  .cap-row{display:flex; align-items:center; gap:8px; margin-top:2px;}
+  .cap-bar{flex:1; height:6px; background:var(--panel-2); border-radius:4px; overflow:hidden; border:1px solid var(--border);}
+  .cap-fill{height:100%; background:linear-gradient(90deg, var(--accent-dim), var(--accent));}
+  .cap-num{font-family:var(--font-mono); font-size:12px; color:var(--text-dim); white-space:nowrap;}
+  .cost-tag{
+    align-self:flex-start; font-family:var(--font-mono); font-size:11.5px;
+    padding:3px 8px; border-radius:5px; background:var(--panel-2); color:var(--accent2); border:1px solid #4a3320;
+  }
+
+  /* campfire */
+  .badge.fire{background:rgba(255,138,61,0.18); color:var(--accent2); border:1px solid #7a4a1f;}
+  .flame-1{font-size:30px; filter:brightness(0.8) saturate(0.7); opacity:0.85;}
+  .flame-2{font-size:42px; text-shadow:0 0 16px rgba(255,138,61,0.55);}
+  .flame-3{font-size:34px; letter-spacing:-2px; text-shadow:0 0 22px rgba(255,138,61,0.85), 0 0 42px rgba(255,90,20,0.5); animation:flameFlicker 1.5s ease-in-out infinite;}
+  @keyframes flameFlicker{0%,100%{transform:scale(1) rotate(-1deg);}50%{transform:scale(1.08) rotate(1deg);}}
+  @media (prefers-reduced-motion: reduce){ .flame-3{animation:none;} }
+  .like-row{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:2px;}
+  .like-btn{display:flex; align-items:center; gap:6px; background:var(--panel-2); border:1.5px solid var(--border); border-radius:20px; padding:7px 14px; font-family:var(--font-mono); font-size:12.5px; color:var(--text);}
+  .like-btn:hover:not(:disabled){border-color:var(--border-lit);}
+  .like-btn.liked{border-color:var(--accent2); color:var(--accent2); background:rgba(255,138,61,0.12);}
+  .like-btn:disabled{cursor:not-allowed;}
+  .review-count-tag{font-size:11.5px; color:var(--text-dim); font-family:var(--font-mono);}
+  .review-item{background:var(--bg-grid); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:8px;}
+  .review-item .who{font-size:11px; color:var(--text-faint); margin-bottom:4px; font-family:var(--font-mono);}
+  .review-item .msg{font-size:13.5px; line-height:1.6; white-space:pre-wrap;}
+
+  /* sticky notes (worries) */
+  .sticky-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:20px; padding-top:6px;}
+  .c-yellow{background:linear-gradient(160deg, #f7e9ad, #eccf7e); color:#332a10;}
+  .c-pink{background:linear-gradient(160deg, #fbd9e6, #f2aecb); color:#4a1530;}
+  .c-blue{background:linear-gradient(160deg, #d3ecfd, #a9d3f5); color:#123048;}
+  .c-green{background:linear-gradient(160deg, #dbf3d4, #aee0a6); color:#17350f;}
+  .sticky{
+    border-radius:3px;
+    padding:18px 16px 14px;
+    min-height:130px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    box-shadow:0 8px 16px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(0,0,0,0.05);
+    position:relative;
+    font-family:'Noto Sans KR',sans-serif;
+    text-align:left;
+    border:none;
+  }
+  .sticky::before{
+    content:''; position:absolute; top:-9px; left:50%; transform:translateX(-50%) rotate(-3deg);
+    width:52px; height:18px; background:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.65);
+  }
+  .sticky-text{font-size:13.5px; line-height:1.55; overflow:hidden; display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical;}
+  .sticky-foot{display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:11px; opacity:0.72; font-family:var(--font-mono);}
+  .sticky-add{
+    background:transparent; border:2px dashed rgba(255,255,255,0.18); color:var(--text-dim);
+    border-radius:3px; min-height:130px; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-size:15px;
+  }
+  .sticky-add:hover{border-color:var(--border-lit); color:var(--text);}
+  .reply-item{border-radius:6px; padding:12px 14px; margin-bottom:10px; box-shadow:0 4px 10px rgba(0,0,0,0.28);}
+  .reply-item .who{font-size:11px; margin-bottom:4px; font-family:var(--font-mono); opacity:0.7;}
+  .reply-item .msg{font-size:13.5px; line-height:1.6; white-space:pre-wrap;}
+
+  /* notices */
+  .notice-list{display:flex; flex-direction:column; gap:10px;}
+  .notice-item{background:var(--panel); border:2px solid var(--border); border-radius:10px; padding:14px 16px; cursor:pointer; text-align:left; width:100%;}
+  .notice-item:hover{border-color:var(--border-lit);}
+  .notice-top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap;}
+  .notice-source{font-family:var(--font-mono); font-size:11px; color:var(--accent2); background:rgba(255,138,61,0.1); border:1px solid #4a3320; padding:3px 8px; border-radius:5px; white-space:nowrap;}
+  .notice-title{font-family:var(--font-display); font-size:16px; margin-top:6px; color:var(--text);}
+  .notice-snippet{color:var(--text-dim); font-size:13px; margin-top:6px; line-height:1.5; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;}
+  .notice-date{font-family:var(--font-mono); font-size:11.5px; color:var(--text-faint); margin-top:6px;}
+  .admin-hint{color:var(--text-faint); font-size:13px; padding:10px 0;}
+
+  /* modal */
+  .overlay{
+    position:fixed; inset:0; background:rgba(4,6,14,0.72);
+    display:flex; align-items:center; justify-content:center;
+    padding:16px; padding-block:calc(16px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-bottom, 0px));
+    z-index:50; overflow-y:auto;
+  }
+  .overlay[hidden]{display:none;}
+  .modal{
+    background:var(--panel); border:2px solid var(--border-lit); border-radius:14px;
+    max-width:520px; width:100%; max-height:88vh; overflow-y:auto;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal-head{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:16px 18px; border-bottom:2px solid var(--border); position:sticky; top:0;
+    background:var(--panel); z-index:2;
+  }
+  .modal-head h2{font-size:19px;}
+  .modal-close{
+    background:transparent; border:1px solid var(--border); color:var(--text-dim);
+    width:32px; height:32px; border-radius:8px; font-size:16px; line-height:1; flex-shrink:0;
+  }
+  .modal-close:hover{color:var(--text); border-color:var(--border-lit);}
+  .modal-body{padding:18px;}
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:14px;}
+  .field label{font-size:12.5px; color:var(--text-dim);}
+  .field .hint{font-size:11.5px; color:var(--text-faint);}
+  .field input, .field textarea{
+    background:var(--bg-grid); border:1.5px solid var(--border); border-radius:8px;
+    color:var(--text); padding:10px 12px; font-size:14px; width:100%;
+  }
+  .field input:focus, .field textarea:focus{border-color:var(--accent);}
+  .field textarea{resize:vertical; min-height:80px; line-height:1.5;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  @media (max-width:420px){ .two-col{grid-template-columns:1fr;} }
+  .form-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:18px;}
+
+  .detail-thumb{width:100%; height:180px; border-bottom:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:56px;}
+  .detail-thumb img{width:100%; height:100%; object-fit:cover;}
+  .detail-meta-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; font-size:13px;}
+  .meta-item{background:var(--bg-grid); border:1px solid var(--border); border-radius:8px; padding:8px 10px;}
+  .meta-item .k{color:var(--text-faint); font-size:11px; margin-bottom:2px;}
+  .meta-item .v{color:var(--text); font-weight:500;}
+  .desc-block{white-space:pre-wrap; line-height:1.7; font-size:14px; color:var(--text); margin:14px 0; padding:12px 14px; background:var(--bg-grid); border-radius:8px; border:1px solid var(--border);}
+  .section-h{font-size:13px; color:var(--text-dim); margin:18px 0 8px; font-family:var(--font-mono); letter-spacing:0.3px;}
+  .participants{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;}
+  .chip{
+    font-size:12.5px; padding:5px 10px; border-radius:999px;
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+  }
+  .chip:hover{border-color:var(--danger); color:var(--danger);}
+  .join-row{display:flex; gap:8px;}
+  .join-row input{flex:1;}
+  .admin-box{margin-top:22px; padding:12px 14px; border:1px dashed var(--border); border-radius:8px;}
+  .admin-box .admin-actions{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
+  .lock-line{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+  .muted{color:var(--text-faint); font-size:12px;}
+  .admin-pill{font-family:var(--font-mono); font-size:11px; padding:5px 9px; border-radius:6px; background:rgba(74,222,128,0.14); color:var(--success); border:1px solid var(--success-dim);}
+
+  /* utility dialogs */
+  .util-modal-text{font-size:14px; line-height:1.6; margin-bottom:16px; color:var(--text);}
+  .util-modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:4px;}
+  .toast{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
+    background:var(--panel-2); border:1.5px solid var(--border-lit); color:var(--text);
+    padding:12px 18px; border-radius:10px; font-size:13.5px; box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    opacity:0; transition:opacity .2s ease, transform .2s ease; z-index:200; max-width:88vw; text-align:center;
+    padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* entry gate */
+  .gate{
+    position:fixed; inset:0; background:var(--bg); z-index:500;
+    display:flex; align-items:center; justify-content:center; padding:16px;
+    padding-block:calc(16px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  .gate[hidden]{display:none;}
+  .gate-card{
+    width:100%; max-width:360px; background:var(--panel); border:2px solid var(--border-lit);
+    border-radius:14px; padding:26px 22px; box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+
+
+<div class="gate" id="gateOverlay">
+  <div class="gate-card">
+    <div class="brand" style="justify-content:center; margin-bottom:18px;">
+      <div class="brand-badge">2th</div>
+      <div>
+        <div class="brand-title">청도지2기 대기실</div>
+        <div class="brand-sub" style="justify-content:center;">입장하려면 이름, 접속 비밀번호, 개인 PIN을 입력해주세요</div>
+      </div>
+    </div>
+    <form id="gateForm" novalidate>
+      <div class="field">
+        <label for="g-name">이름</label>
+        <input id="g-name" name="name" required maxlength="16" placeholder="실명을 입력해주세요">
+      </div>
+      <div class="field">
+        <label for="g-pw">접속 비밀번호</label>
+        <input id="g-pw" name="password" type="password" required placeholder="청도지 2기 담당자에게 문의해주세요">
+      </div>
+      <div class="field">
+        <label for="g-pin">개인 PIN (숫자 4자리)</label>
+        <input id="g-pin" name="pin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="0000">
+        <div class="hint">처음 쓰는 이름이면 이 PIN으로 자동 등록돼요. 이미 등록된 이름이면 그때 정한 PIN을 똑같이 입력해야 통과돼요 — 다른 사람 이름으로는 들어올 수 없어요.</div>
+      </div>
+      <button type="submit" class="btn btn-primary" id="gateSubmit" style="width:100%;" disabled>입장하기</button>
+    </form>
+    <div class="hint" id="gateHint" style="text-align:center; margin-top:12px;">불러오는 중...</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-badge">2th</div>
+      <div>
+        <div class="brand-title">청도지2기 대기실</div>
+        <div class="brand-sub"><span class="live-dot"></span>청도지 군산 2기 참가자들을 위한 커뮤니티 공간</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm" id="adminBtn">🔒 관리자</button>
+  </div>
+
+  <div class="banner" id="dbBanner" hidden>⚠️ 실시간 저장 기능을 불러오지 못했어요. firebaseConfig 설정이 올바른지, 인터넷 연결을 확인해주세요.</div>
+
+  <div class="tabbar">
+    <button class="tab active" id="tab-rooms" data-tab="rooms">🛎️ 대기방</button>
+    <button class="tab" id="tab-campfire" data-tab="campfire">🔥 모닥불</button>
+    <button class="tab" id="tab-worries" data-tab="worries">📝 고민 포스트잇</button>
+    <button class="tab" id="tab-notices" data-tab="notices">📌 알림판</button>
+  </div>
+
+  <!-- panel: rooms -->
+  <div class="panel" id="panel-rooms">
+    <div class="status-row">
+      <div class="room-count" id="roomCount"></div>
+      <button class="btn btn-primary" id="createBtn" disabled>+ 방 만들기</button>
+    </div>
+    <div class="loading" id="loadingState">대기실 불러오는 중<span style="font-family:var(--font-mono)">...</span></div>
+    <div class="empty" id="emptyState" hidden>
+      <div class="big-emoji">🏳️</div>
+      아직 열린 방이 없어요.<br>첫 번째 모임을 만들어보세요!
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- panel: campfire -->
+  <div class="panel" id="panel-campfire" hidden>
+    <div class="status-row">
+      <div class="room-count" id="campfireCount"></div>
+      <button class="btn btn-primary" id="campfireCreateBtn" disabled>+ 비장의 컨텐츠 추천</button>
+    </div>
+    <div class="admin-hint" style="padding-top:0; margin-bottom:16px;">🔥 나만 알던 인생 노래·영화·책·사진, 무엇이든 추천해보세요. 좋아요를 많이 받을수록 모닥불이 더 활활 타올라요.</div>
+    <div class="loading" id="campfireLoading">모닥불 불러오는 중...</div>
+    <div class="empty" id="campfireEmpty" hidden>
+      <div class="big-emoji">🪵</div>
+      아직 붙은 불씨가 없어요.<br>첫 추천으로 모닥불을 피워보세요!
+    </div>
+    <div class="grid" id="campfireGrid"></div>
+  </div>
+
+  <!-- panel: worries -->
+  <div class="panel" id="panel-worries" hidden>
+    <div class="status-row">
+      <div class="room-count" id="worryCount"></div>
+      <button class="btn btn-primary" id="worryCreateBtn" disabled>+ 고민 남기기</button>
+    </div>
+    <div class="banner">욕설·비방·특정인 저격은 발견 즉시 삭제됩니다. 우리 서로를 존중해요~</div>
+    <div class="admin-hint" style="padding-top:0; margin-bottom:16px;">🔒 닉네임 없이 완전 익명으로 작성돼요. 개인정보는 전혀 수집하지 않으니 편하게 남겨주세요.</div>
+    <div class="loading" id="worryLoading">포스트잇 불러오는 중...</div>
+    <div class="empty" id="worryEmpty" hidden>
+      <div class="big-emoji">🗒️</div>
+      아직 붙은 포스트잇이 없어요.<br>첫 고민을 익명으로 남겨보세요.
+    </div>
+    <div class="sticky-grid" id="worryGrid"></div>
+  </div>
+
+  <!-- panel: notices -->
+  <div class="panel" id="panel-notices" hidden>
+    <div class="status-row">
+      <div class="room-count" id="noticeCount"></div>
+      <button class="btn btn-primary" id="noticeCreateBtn" hidden disabled>+ 알림 추가</button>
+    </div>
+    <div class="admin-hint" id="noticeAdminHint">알림판은 관리자만 작성·수정할 수 있어요. 군산시·군산시립도서관·군산 예술의전당 등의 행사·교육 정보를 올리는 공간이에요.</div>
+    <div class="loading" id="noticeLoading">알림 불러오는 중...</div>
+    <div class="empty" id="noticeEmpty" hidden>
+      <div class="big-emoji">📌</div>
+      아직 등록된 알림이 없어요.
+    </div>
+    <div class="notice-list" id="noticeList"></div>
+  </div>
+</div>
+
+<!-- create room modal -->
+<div class="overlay" id="createOverlay" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h2>방 만들기</h2>
+      <button class="modal-close" id="createClose" aria-label="닫기">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="createForm" novalidate>
+        <div class="field">
+          <label for="f-title">모임 제목</label>
+          <input id="f-title" name="title" required maxlength="40" placeholder="예: 한강 러닝크루 🏃">
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="f-host">주최자 닉네임</label>
+            <input id="f-host" name="host" required maxlength="16" placeholder="닉네임">
+          </div>
+          <div class="field">
+            <label for="f-capacity">모집 인원</label>
+            <input id="f-capacity" name="capacity" type="number" min="2" max="100" required placeholder="8">
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="f-datetime">모임 일시</label>
+            <input id="f-datetime" name="datetime" type="datetime-local" required>
+          </div>
+          <div class="field">
+            <label for="f-cost">참가비 (선택)</label>
+            <input id="f-cost" name="cost" maxlength="20" placeholder="무료">
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-image">대표 이미지 URL (선택)</label>
+          <input id="f-image" name="imageUrl" type="url" placeholder="https://...">
+          <div class="hint">이미지 링크를 붙여넣으면 카드 썸네일로 보여요. 비워두면 자동 생성된 아이콘이 대신 표시돼요.</div>
+        </div>
+        <div class="field">
+          <label for="f-desc">모임 소개</label>
+          <textarea id="f-desc" name="description" required maxlength="800" placeholder="모이는 장소, 준비물, 진행 방식 등을 자유롭게 적어주세요."></textarea>
+        </div>
+        <div class="field">
+          <label for="f-pin">관리 비밀번호 (숫자 4자리)</label>
+          <input id="f-pin" name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="0000">
+          <div class="hint">나중에 방을 수정하거나 마감·삭제할 때 필요해요. 잊지 않게 기억해두세요.</div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="createCancel">취소</button>
+          <button type="submit" class="btn btn-primary">방 만들기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- room detail modal -->
+<div class="overlay" id="detailOverlay" hidden>
+  <div class="modal" id="detailModal"></div>
+</div>
+
+<!-- create campfire modal -->
+<div class="overlay" id="campfireCreateOverlay" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h2>비장의 컨텐츠 추천</h2>
+      <button class="modal-close" id="campfireCreateClose" aria-label="닫기">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="campfireCreateForm" novalidate>
+        <div class="field">
+          <label for="c-title">작품/컨텐츠 이름</label>
+          <input id="c-title" name="title" required maxlength="60" placeholder="예: OO의 노래, OOO 영화...">
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="c-category">분류 (선택)</label>
+            <input id="c-category" name="category" maxlength="20" placeholder="예: 영화, 음악, 책, 사진">
+          </div>
+          <div class="field">
+            <label for="c-nickname">닉네임 (선택)</label>
+            <input id="c-nickname" name="nickname" maxlength="16" placeholder="비우면 익명">
+          </div>
+        </div>
+        <div class="field">
+          <label for="c-image">이미지 URL (선택)</label>
+          <input id="c-image" name="imageUrl" type="url" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label for="c-link">감상 링크 (선택)</label>
+          <input id="c-link" name="link" type="url" placeholder="예: 유튜브, 멜론, 서점 링크 등">
+          <div class="hint">음악이면 유튜브 링크처럼, 바로 감상해볼 수 있는 링크를 남겨주세요. 비워둬도 괜찮아요.</div>
+        </div>
+        <div class="field">
+          <label for="c-pin">삭제 비밀번호 (선택, 숫자 4자리)</label>
+          <input id="c-pin" name="pin" inputmode="numeric" maxlength="4" placeholder="나중에 직접 삭제하려면 설정하세요">
+          <div class="hint">설정해두면 나중에 본인이 직접 삭제할 수 있어요. 비워두면 관리자만 삭제할 수 있어요.</div>
+        </div>
+        <div class="field">
+          <label for="c-desc">추천 이유</label>
+          <textarea id="c-desc" name="description" required maxlength="500" placeholder="왜 이 작품을 추천하는지 자유롭게 적어주세요."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="campfireCreateCancel">취소</button>
+          <button type="submit" class="btn btn-primary">모닥불에 올리기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- campfire detail modal -->
+<div class="overlay" id="campfireDetailOverlay" hidden>
+  <div class="modal" id="campfireDetailModal"></div>
+</div>
+
+<!-- create worry modal -->
+<div class="overlay" id="worryCreateOverlay" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h2>고민 포스트잇 남기기</h2>
+      <button class="modal-close" id="worryCreateClose" aria-label="닫기">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="worryCreateForm" novalidate>
+        <div class="field">
+          <label for="w-text">익명으로 남길 고민</label>
+          <textarea id="w-text" name="text" required maxlength="500" placeholder="요즘 고민되는 것을 편하게 적어주세요. 작성자는 표시되지 않아요."></textarea>
+          <div class="hint">닉네임 없이 완전 익명으로 등록돼요. 욕설·비방은 발견 즉시 삭제됩니다. 우리 서로를 존중해요~</div>
+        </div>
+        <div class="field">
+          <label for="w-pin">삭제 비밀번호 (선택, 숫자 4자리)</label>
+          <input id="w-pin" name="pin" inputmode="numeric" maxlength="4" placeholder="나중에 직접 삭제하려면 설정하세요">
+          <div class="hint">설정해두면 나중에 본인이 직접 삭제할 수 있어요. 비워두면 관리자만 삭제할 수 있고, 익명성에는 영향 없어요.</div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="worryCreateCancel">취소</button>
+          <button type="submit" class="btn btn-primary">익명으로 붙이기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- worry detail modal -->
+<div class="overlay" id="worryDetailOverlay" hidden>
+  <div class="modal" id="worryDetailModal"></div>
+</div>
+
+<!-- notice form modal (create/edit) -->
+<div class="overlay" id="noticeFormOverlay" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="noticeFormTitle">알림 추가</h2>
+      <button class="modal-close" id="noticeFormClose" aria-label="닫기">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="noticeForm" novalidate>
+        <div class="field">
+          <label for="n-title">제목</label>
+          <input id="n-title" name="title" required maxlength="60" placeholder="예: 군산시립도서관 10월 특강 안내">
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="n-source">출처/기관</label>
+            <input id="n-source" name="source" maxlength="30" placeholder="예: 군산시립도서관">
+          </div>
+          <div class="field">
+            <label for="n-date">일정 (선택)</label>
+            <input id="n-date" name="eventDate" maxlength="40" placeholder="예: 10월 중 / 10.15(수)">
+          </div>
+        </div>
+        <div class="field">
+          <label for="n-link">관련 링크 (선택)</label>
+          <input id="n-link" name="link" type="url" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label for="n-body">내용</label>
+          <textarea id="n-body" name="body" required maxlength="1200" placeholder="행사·교육 내용을 적어주세요."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="noticeFormCancel">취소</button>
+          <button type="submit" class="btn btn-primary" id="noticeFormSubmit">등록하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- notice detail modal -->
+<div class="overlay" id="noticeDetailOverlay" hidden>
+  <div class="modal" id="noticeDetailModal"></div>
+</div>
+
+<script>
+  // 이 Promise는 아래 Firebase 모듈 스크립트가 초기화를 마치면 resolve됩니다.
+  // (본문 하단의 앱 스크립트가 이 Promise를 기다렸다가 dbRef로 사용합니다.)
+  window.__firebaseDbReady = new Promise(function(resolve){ window.__resolveFirebaseDb = resolve; });
+</script>
+
+<script type="module">
+  // ============================================================
+  // ▼▼▼ Firebase 프로젝트 설정 — 여기 6개 값을 본인 프로젝트 값으로 교체하세요 ▼▼▼
+  // Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 일반 탭 > 하단 "내 앱" > 웹 앱 > SDK 설정에서 확인
+  // ============================================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyC5TvrDDAPQ5ccN4H7fDwud_Yvcv9CIBAs",
+    authDomain: "gunsan01-abef7.firebaseapp.com",
+    projectId: "gunsan01-abef7",
+    storageBucket: "gunsan01-abef7.firebasestorage.app",
+    messagingSenderId: "195385017724",
+    appId: "1:195385017724:web:d340c40914686a1e9a10f9"
+  };
+  // ============================================================
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  import {
+    getFirestore, doc, collection, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
+    addDoc, onSnapshot, query, where, orderBy, limit
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+  // ---- claude.use('db')가 주던 것과 똑같은 모양(doc/collection/get/set/update/delete/
+  // onSnapshot/where/orderBy/limit/add)의 어댑터를 만들어서, 아래 큰 앱 스크립트는
+  // 단 한 줄(init 함수의 dbRef 할당부)만 빼고 전혀 손대지 않아도 되게 했습니다. ----
+
+  function wrapDocSnap(snap){
+    return { id: snap.id, exists: snap.exists(), data: function(){ return snap.data(); } };
+  }
+  function wrapQuerySnap(qSnap){
+    return {
+      docs: qSnap.docs.map(function(d){ return { id: d.id, exists: true, data: function(){ return d.data(); } }; }),
+      size: qSnap.size,
+      empty: qSnap.empty
+    };
+  }
+  function wrapDocRef(dRef){
+    return {
+      id: dRef.id,
+      path: dRef.path,
+      get: function(){ return getDoc(dRef).then(wrapDocSnap); },
+      set: function(data){ return setDoc(dRef, data); },
+      update: function(data){ return updateDoc(dRef, data); },
+      delete: function(){ return deleteDoc(dRef); },
+      collection: function(path){ return wrapCollectionRef(collection(dRef, path)); }
+    };
+  }
+  function wrapQueryChain(qRef){
+    return {
+      where: function(field, op, value){ return wrapQueryChain(query(qRef, where(field, op, value))); },
+      orderBy: function(field, dir){ return wrapQueryChain(query(qRef, orderBy(field, dir || 'asc'))); },
+      limit: function(n){ return wrapQueryChain(query(qRef, limit(n))); },
+      get: function(){ return getDocs(qRef).then(wrapQuerySnap); },
+      onSnapshot: function(next, errCb){
+        return onSnapshot(qRef, function(snap){ next(wrapQuerySnap(snap)); }, errCb);
+      }
+    };
+  }
+  function wrapCollectionRef(cRef){
+    var base = wrapQueryChain(cRef);
+    base.path = cRef.path;
+    base.doc = function(id){ return wrapDocRef(id ? doc(cRef, id) : doc(cRef)); };
+    base.add = function(data){ return addDoc(cRef, data).then(wrapDocRef); };
+    return base;
+  }
+
+  (async function(){
+    try{
+      var app = initializeApp(firebaseConfig);
+      var auth = getAuth(app);
+      await signInAnonymously(auth);           // 회원가입/로그인 UI 없이 조용히 인증만 통과
+      var firestoreDb = getFirestore(app);
+      window.__resolveFirebaseDb({
+        doc: function(path){ return wrapDocRef(doc(firestoreDb, path)); },
+        collection: function(path){ return wrapCollectionRef(collection(firestoreDb, path)); }
+      });
+    }catch(e){
+      console.error('Firebase 초기화 실패:', e);
+      window.__resolveFirebaseDb(null);
+    }
+  })();
+</script>
+
+<script>
+(function(){
+  var dbRef = null;
+  var isAdmin = false;
+  var adminPin = null;
+
+  /* ---------- shared helpers ---------- */
+  function hashHue(str){
+    var h = 0;
+    for (var i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) % 360; }
+    return Math.abs(h);
+  }
+  function placeholderStyle(title){
+    var hue = hashHue(title || 'room');
+    return 'background:linear-gradient(135deg, hsl(' + hue + ' 65% 20%), hsl(' + ((hue+45)%360) + ' 70% 12%));';
+  }
+  var STICKY_COLORS = ['c-yellow','c-pink','c-blue','c-green'];
+  function stickyColorClass(seed){
+    return STICKY_COLORS[hashHue(String(seed)) % STICKY_COLORS.length];
+  }
+  function formatDateTime(iso){
+    try{
+      var d = new Date(iso);
+      var days = ['일','월','화','수','목','금','토'];
+      var month = d.getMonth()+1, date = d.getDate(), day = days[d.getDay()];
+      var h = d.getHours(), m = d.getMinutes();
+      var ampm = h < 12 ? '오전' : '오후';
+      var h12 = h % 12; if (h12 === 0) h12 = 12;
+      var mm = (m < 10 ? '0' : '') + m;
+      return month + '월 ' + date + '일(' + day + ') ' + ampm + ' ' + h12 + ':' + mm;
+    }catch(e){ return iso; }
+  }
+  function formatDateShort(iso){
+    try{
+      var d = new Date(iso);
+      return (d.getMonth()+1) + '.' + d.getDate();
+    }catch(e){ return ''; }
+  }
+
+  /* ---------- custom dialogs (native alert/confirm/prompt are unreliable inside the
+     artifact's sandboxed frame, so every confirmation/input/notice uses these instead) ---------- */
+  function openUtilModal(opts){
+    return new Promise(function(resolve){
+      var overlay = document.createElement('div');
+      overlay.className = 'overlay show';
+      var modal = document.createElement('div'); modal.className = 'modal'; modal.style.maxWidth = '380px';
+
+      var head = document.createElement('div'); head.className = 'modal-head';
+      var h2 = document.createElement('h2'); h2.textContent = opts.title || '';
+      head.appendChild(h2);
+      modal.appendChild(head);
+
+      var body = document.createElement('div'); body.className = 'modal-body';
+      if (opts.bodyText){
+        var p = document.createElement('div'); p.className = 'util-modal-text'; p.textContent = opts.bodyText;
+        body.appendChild(p);
+      }
+      var inputEl = null;
+      if (opts.showInput){
+        var field = document.createElement('div'); field.className = 'field';
+        inputEl = document.createElement('input');
+        inputEl.type = (opts.inputType === 'password') ? 'password' : 'text';
+        if (opts.inputType === 'numeric') inputEl.setAttribute('inputmode', 'numeric');
+        inputEl.placeholder = opts.inputPlaceholder || '';
+        if (opts.maxLength) inputEl.maxLength = opts.maxLength;
+        field.appendChild(inputEl);
+        body.appendChild(field);
+      }
+      var actions = document.createElement('div'); actions.className = 'util-modal-actions';
+      var cancelBtn = document.createElement('button'); cancelBtn.type = 'button'; cancelBtn.className = 'btn btn-ghost btn-sm'; cancelBtn.textContent = opts.cancelText || '취소';
+      var confirmBtn = document.createElement('button'); confirmBtn.type = 'button';
+      confirmBtn.className = 'btn btn-sm ' + (opts.danger ? 'btn-danger' : 'btn-primary');
+      confirmBtn.textContent = opts.confirmText || '확인';
+      actions.appendChild(cancelBtn); actions.appendChild(confirmBtn);
+      body.appendChild(actions);
+      modal.appendChild(body);
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      function cleanup(){
+        document.removeEventListener('keydown', onKey);
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      }
+      function onConfirm(){
+        var val = opts.showInput ? inputEl.value : true;
+        cleanup(); resolve(val);
+      }
+      function onCancel(){ cleanup(); resolve(null); }
+      function onKey(e){
+        if (e.key === 'Escape'){ onCancel(); }
+        else if (e.key === 'Enter' && opts.showInput){ e.preventDefault(); onConfirm(); }
+      }
+      confirmBtn.addEventListener('click', onConfirm);
+      cancelBtn.addEventListener('click', onCancel);
+      overlay.addEventListener('click', function(e){ if (e.target === overlay) onCancel(); });
+      document.addEventListener('keydown', onKey);
+
+      if (opts.showInput) inputEl.focus(); else confirmBtn.focus();
+    });
+  }
+  function showPromptModal(title, placeholder, inputType, maxLength){
+    return openUtilModal({title: title, showInput: true, inputPlaceholder: placeholder, inputType: inputType, maxLength: maxLength, confirmText: '확인', cancelText: '취소'});
+  }
+  function showConfirmModal(bodyText, danger){
+    return openUtilModal({title: danger ? '삭제 확인' : '확인', bodyText: bodyText, showInput: false, confirmText: danger ? '삭제' : '확인', cancelText: '취소', danger: !!danger});
+  }
+  function showToast(message){
+    var toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(function(){ toast.classList.add('show'); });
+    setTimeout(function(){
+      toast.classList.remove('show');
+      setTimeout(function(){ if (toast.parentNode) toast.parentNode.removeChild(toast); }, 250);
+    }, 2600);
+  }
+
+  /* ---------- reply/review message deletion (shared by campfire reviews & worry replies) ---------- */
+  var authedMsgs = {};
+  function msgKey(parentType, parentId, createdAt){ return parentType + ':' + parentId + ':' + createdAt; }
+
+  function buildMsgDeleteBtn(parentType, parentId, msg){
+    if (!isAdmin && !msg.pin) return null;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = '삭제';
+    btn.style.cssText = 'background:none;border:none;color:inherit;opacity:0.6;font-size:11px;font-family:var(--font-mono);cursor:pointer;padding:0;';
+    btn.addEventListener('click', function(){ handleMsgDeleteClick(parentType, parentId, msg); });
+    return btn;
+  }
+
+  async function handleMsgDeleteClick(parentType, parentId, msg){
+    if (!dbRef) return;
+    var key = msgKey(parentType, parentId, msg.createdAt);
+    if (!isAdmin && !authedMsgs[key]){
+      if (!msg.pin){ showToast('삭제 권한이 없어요.'); return; }
+      var input = await showPromptModal('삭제 비밀번호', '4자리 숫자를 입력해주세요', 'numeric', 4);
+      if (input === null) return;
+      if (input !== msg.pin){ showToast('비밀번호가 일치하지 않아요.'); return; }
+      authedMsgs[key] = true;
+    }
+    var ok = await showConfirmModal('이 메시지를 삭제할까요? 되돌릴 수 없어요.', true);
+    if (!ok) return;
+    try{
+      var collectionName = parentType === 'worry' ? 'worries' : 'campfire';
+      var field = parentType === 'worry' ? 'replies' : 'reviews';
+      var ref = dbRef.doc(collectionName + '/' + parentId);
+      var snap = await ref.get();
+      if (!snap.exists) return;
+      var data = snap.data();
+      var updated = (data[field] || []).filter(function(x){ return x.createdAt !== msg.createdAt; });
+      var patch = {}; patch[field] = updated;
+      await ref.update(patch);
+    }catch(e){ showToast('삭제에 실패했어요.'); }
+  }
+
+  /* ---------- entry gate (name + shared invite code + personal PIN, remembered per browser) ----------
+     Prevents casual impersonation: the first time a name passes the gate, its PIN is registered
+     in the shared 'gateUsers' collection ("name-claim" registration); every later use of that
+     same name — from any browser — must match the same PIN. */
+  var GATE_KEY = 'cheongdoji2_gate_v1';
+  var currentVisitorName = '';
+  var gatePassword = null;
+  var gateEls = {
+    overlay: document.getElementById('gateOverlay'),
+    form: document.getElementById('gateForm'),
+    submit: document.getElementById('gateSubmit'),
+    hint: document.getElementById('gateHint'),
+  };
+
+  function readSavedGate(){
+    try{
+      var raw = localStorage.getItem(GATE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      return (parsed && parsed.ok && parsed.name) ? parsed : null;
+    }catch(e){ return null; }
+  }
+  function writeSavedGate(name){
+    try{ localStorage.setItem(GATE_KEY, JSON.stringify({ok: true, name: name, ts: Date.now()})); }
+    catch(e){ /* storage unavailable — still lets this visit through, just won't be remembered */ }
+  }
+  function passGate(name){
+    currentVisitorName = name || '';
+    gateEls.overlay.hidden = true;
+  }
+
+  var savedGate = readSavedGate();
+  if (savedGate) passGate(savedGate.name);
+
+  gateEls.form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    if (!gatePassword) return;
+    var name = gateEls.form.name.value.trim();
+    var pw = gateEls.form.password.value;
+    var pin = gateEls.form.pin.value.trim();
+    if (!name){ showToast('이름을 입력해주세요.'); return; }
+    if (!pw){ showToast('접속 비밀번호를 입력해주세요.'); return; }
+    if (pw !== gatePassword){ showToast('접속 비밀번호가 일치하지 않아요.'); return; }
+    if (!/^[0-9]{4}$/.test(pin)){ showToast('개인 PIN은 숫자 4자리로 입력해주세요.'); return; }
+    if (!dbRef){ showToast('본인 확인 기능을 불러오지 못했어요. 새로고침 후 다시 시도해주세요.'); return; }
+
+    gateEls.submit.disabled = true;
+    gateEls.submit.textContent = '확인 중...';
+    try{
+      var q = await dbRef.collection('gateUsers').where('name', '==', name).limit(1).get();
+      if (q.empty){
+        // first time this name is used — register it with this PIN
+        await dbRef.collection('gateUsers').add({name: name, pin: pin, createdAt: new Date().toISOString()});
+      } else {
+        var existing = q.docs[0].data();
+        if (existing.pin !== pin){
+          showToast('이미 등록된 이름이에요. 처음 등록할 때 정한 개인 PIN을 입력해주세요.');
+          return;
+        }
+      }
+      writeSavedGate(name);
+      passGate(name);
+    }catch(e){
+      showToast('확인 중 문제가 생겼어요. 다시 시도해주세요.');
+    }finally{
+      gateEls.submit.disabled = false;
+      gateEls.submit.textContent = '입장하기';
+    }
+  });
+
+  /* ---------- tabs ---------- */
+  var tabNames = ['rooms','campfire','worries','notices'];
+  tabNames.forEach(function(name){
+    document.getElementById('tab-'+name).addEventListener('click', function(){ switchTab(name); });
+  });
+  function switchTab(name){
+    tabNames.forEach(function(n){
+      document.getElementById('panel-'+n).hidden = (n !== name);
+      document.getElementById('tab-'+n).classList.toggle('active', n === name);
+    });
+  }
+
+  /* ================= ROOMS ================= */
+  var roomsCache = [];
+  var openDetailId = null;
+  var authedRooms = {};
+
+  var els = {
+    createBtn: document.getElementById('createBtn'),
+    dbBanner: document.getElementById('dbBanner'),
+    roomCount: document.getElementById('roomCount'),
+    loadingState: document.getElementById('loadingState'),
+    emptyState: document.getElementById('emptyState'),
+    grid: document.getElementById('grid'),
+    createOverlay: document.getElementById('createOverlay'),
+    createForm: document.getElementById('createForm'),
+    createClose: document.getElementById('createClose'),
+    createCancel: document.getElementById('createCancel'),
+    detailOverlay: document.getElementById('detailOverlay'),
+    detailModal: document.getElementById('detailModal'),
+  };
+
+  function statusInfo(room){
+    var full = room.participants.length >= room.capacityMax;
+    if (room.status === 'closed') return {label:'종료', cls:'closed'};
+    if (full) return {label:'정원마감', cls:'full'};
+    return {label:'모집중', cls:'open'};
+  }
+
+  function buildThumb(room, big){
+    var wrap = document.createElement('div');
+    wrap.className = big ? 'detail-thumb' : 'card-thumb';
+    if (room.imageUrl){
+      var img = document.createElement('img');
+      img.src = room.imageUrl;
+      img.alt = room.title;
+      img.onerror = function(){ wrap.removeChild(img); wrap.setAttribute('style', placeholderStyle(room.title)); };
+      wrap.appendChild(img);
+    } else {
+      wrap.setAttribute('style', placeholderStyle(room.title));
+    }
+    return wrap;
+  }
+
+  function buildCard(room){
+    var card = document.createElement('button');
+    card.className = 'card';
+    card.type = 'button';
+    card.setAttribute('aria-label', room.title + ' 상세보기');
+
+    var thumb = buildThumb(room, false);
+    var st = statusInfo(room);
+    var badge = document.createElement('div');
+    badge.className = 'badge ' + st.cls;
+    badge.textContent = st.label;
+    thumb.appendChild(badge);
+    card.appendChild(thumb);
+
+    var body = document.createElement('div');
+    body.className = 'card-body';
+
+    var title = document.createElement('div');
+    title.className = 'card-title';
+    title.textContent = room.title;
+    body.appendChild(title);
+
+    var meta = document.createElement('div');
+    meta.className = 'card-meta';
+    var hostLine = document.createElement('span'); hostLine.innerHTML = '주최 <b></b>'; hostLine.querySelector('b').textContent = room.host;
+    var dtLine = document.createElement('span'); dtLine.innerHTML = '일시 <b></b>'; dtLine.querySelector('b').textContent = formatDateTime(room.datetime);
+    meta.appendChild(hostLine); meta.appendChild(dtLine);
+    body.appendChild(meta);
+
+    var capRow = document.createElement('div');
+    capRow.className = 'cap-row';
+    var capBar = document.createElement('div');
+    capBar.className = 'cap-bar';
+    var capFill = document.createElement('div');
+    capFill.className = 'cap-fill';
+    var pct = Math.min(100, Math.round((room.participants.length / room.capacityMax) * 100));
+    capFill.style.width = pct + '%';
+    capBar.appendChild(capFill);
+    var capNum = document.createElement('div');
+    capNum.className = 'cap-num';
+    capNum.textContent = room.participants.length + '/' + room.capacityMax;
+    capRow.appendChild(capBar);
+    capRow.appendChild(capNum);
+    body.appendChild(capRow);
+
+    var cost = document.createElement('div');
+    cost.className = 'cost-tag';
+    cost.textContent = room.cost || '무료';
+    body.appendChild(cost);
+
+    card.appendChild(body);
+    card.addEventListener('click', function(){ openDetail(room.id); });
+    return card;
+  }
+
+  function renderRooms(){
+    els.grid.innerHTML = '';
+    els.roomCount.textContent = roomsCache.length ? ('전체 ' + roomsCache.length + '개의 방') : '';
+    els.emptyState.hidden = roomsCache.length !== 0;
+    roomsCache.forEach(function(r){ els.grid.appendChild(buildCard(r)); });
+  }
+
+  function findRoom(id){
+    for (var i=0;i<roomsCache.length;i++){ if (roomsCache[i].id === id) return roomsCache[i]; }
+    return null;
+  }
+
+  function openDetail(id){ openDetailId = id; renderDetail(); els.detailOverlay.hidden = false; }
+  function closeDetail(){ openDetailId = null; els.detailOverlay.hidden = true; }
+
+  function renderDetail(){
+    var room = findRoom(openDetailId);
+    if (!room){ closeDetail(); return; }
+    var st = statusInfo(room);
+    var m = els.detailModal;
+    m.innerHTML = '';
+
+    var head = document.createElement('div');
+    head.className = 'modal-head';
+    var h2 = document.createElement('h2'); h2.textContent = room.title;
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'modal-close'; closeBtn.setAttribute('aria-label','닫기'); closeBtn.textContent = '✕';
+    closeBtn.addEventListener('click', closeDetail);
+    head.appendChild(h2); head.appendChild(closeBtn);
+    m.appendChild(head);
+
+    var thumb = buildThumb(room, true);
+    var badge = document.createElement('div');
+    badge.className = 'badge ' + st.cls;
+    badge.textContent = st.label;
+    thumb.appendChild(badge);
+    m.appendChild(thumb);
+
+    var body = document.createElement('div');
+    body.className = 'modal-body';
+
+    var metaGrid = document.createElement('div');
+    metaGrid.className = 'detail-meta-grid';
+    var metas = [
+      ['주최', room.host],
+      ['일시', formatDateTime(room.datetime)],
+      ['참가비', room.cost || '무료'],
+      ['인원', room.participants.length + ' / ' + room.capacityMax + '명']
+    ];
+    metas.forEach(function(pair){
+      var item = document.createElement('div'); item.className = 'meta-item';
+      var k = document.createElement('div'); k.className='k'; k.textContent = pair[0];
+      var v = document.createElement('div'); v.className='v'; v.textContent = pair[1];
+      item.appendChild(k); item.appendChild(v);
+      metaGrid.appendChild(item);
+    });
+    body.appendChild(metaGrid);
+
+    var descH = document.createElement('div'); descH.className = 'section-h'; descH.textContent = 'MOIM INFO — 모임 소개';
+    body.appendChild(descH);
+    var desc = document.createElement('div'); desc.className = 'desc-block'; desc.textContent = room.description || '';
+    body.appendChild(desc);
+
+    var partH = document.createElement('div'); partH.className = 'section-h';
+    partH.textContent = 'PARTY — 참가자 명단 (' + room.participants.length + '/' + room.capacityMax + ')';
+    body.appendChild(partH);
+
+    var canManageParticipants = authedRooms[room.id] || isAdmin;
+    var partList = document.createElement('div'); partList.className = 'participants';
+    if (room.participants.length === 0){
+      var none = document.createElement('div'); none.className = 'muted'; none.textContent = '아직 참가자가 없어요. 첫 참가자가 되어보세요!';
+      partList.appendChild(none);
+    } else {
+      room.participants.forEach(function(p){
+        var chip = document.createElement(canManageParticipants ? 'button' : 'span');
+        if (canManageParticipants) chip.type = 'button';
+        chip.className = 'chip';
+        chip.textContent = p.name;
+        if (canManageParticipants){
+          chip.title = '클릭하면 참가자 명단에서 제외할 수 있어요';
+          chip.addEventListener('click', function(){ handleRemoveParticipant(room.id, p.name); });
+        } else {
+          chip.style.cursor = 'default';
+        }
+        partList.appendChild(chip);
+      });
+    }
+    body.appendChild(partList);
+
+    var full = room.participants.length >= room.capacityMax;
+    var closed = room.status === 'closed';
+    var joinRow = document.createElement('div'); joinRow.className = 'join-row';
+    var joinInput = document.createElement('input');
+    joinInput.id = 'joinNameInput'; joinInput.placeholder = '닉네임을 입력하세요'; joinInput.maxLength = 16;
+    joinInput.disabled = closed || full || !dbRef;
+    var joinBtn = document.createElement('button');
+    joinBtn.className = 'btn btn-primary btn-sm';
+    joinBtn.textContent = closed ? '종료된 모임' : (full ? '정원마감' : '참가하기');
+    joinBtn.disabled = closed || full || !dbRef;
+    joinBtn.addEventListener('click', function(){ handleJoin(room.id, joinInput); });
+    joinInput.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); handleJoin(room.id, joinInput); } });
+    joinRow.appendChild(joinInput); joinRow.appendChild(joinBtn);
+    body.appendChild(joinRow);
+
+    var adminBox = document.createElement('div'); adminBox.className = 'admin-box';
+    if (authedRooms[room.id] || isAdmin){
+      var line = document.createElement('div'); line.className = 'lock-line';
+      var label = document.createElement('div'); label.className = 'muted';
+      label.textContent = authedRooms[room.id] ? '🔓 방장 인증됨' : '🔓 플랫폼 관리자 권한으로 관리 중';
+      var actions = document.createElement('div'); actions.className = 'admin-actions';
+      var toggleBtn = document.createElement('button'); toggleBtn.className = 'btn btn-ghost btn-sm';
+      toggleBtn.textContent = closed ? '모집 재개' : '모집 마감';
+      toggleBtn.addEventListener('click', function(){ handleToggleStatus(room.id); });
+      var delBtn = document.createElement('button'); delBtn.className = 'btn btn-danger btn-sm'; delBtn.textContent = '방 삭제';
+      delBtn.addEventListener('click', function(){ handleDelete(room.id); });
+      actions.appendChild(toggleBtn); actions.appendChild(delBtn);
+      line.appendChild(label); line.appendChild(actions);
+      adminBox.appendChild(line);
+    } else {
+      var line2 = document.createElement('div'); line2.className = 'lock-line';
+      var label2 = document.createElement('div'); label2.className = 'muted'; label2.textContent = '🔒 방장이신가요?';
+      var authBtn = document.createElement('button'); authBtn.className = 'btn btn-ghost btn-sm'; authBtn.textContent = '관리자 인증';
+      authBtn.disabled = !dbRef;
+      authBtn.addEventListener('click', function(){ handlePinCheck(room); });
+      line2.appendChild(label2); line2.appendChild(authBtn);
+      adminBox.appendChild(line2);
+    }
+    body.appendChild(adminBox);
+    m.appendChild(body);
+  }
+
+  async function handleJoin(roomId, inputEl){
+    var name = inputEl.value.trim();
+    if (!name){ inputEl.focus(); return; }
+    if (!dbRef) return;
+    try{
+      var ref = dbRef.doc('rooms/' + roomId);
+      var snap = await ref.get();
+      if (!snap.exists) return;
+      var data = snap.data();
+      if (data.participants.some(function(p){ return p.name === name; })){ showToast('이미 참가 명단에 있어요!'); return; }
+      if (data.participants.length >= data.capacityMax){ showToast('정원이 다 찼어요.'); return; }
+      var updated = data.participants.concat([{name: name, joinedAt: new Date().toISOString()}]);
+      await ref.update({participants: updated});
+      inputEl.value = '';
+    }catch(e){ showToast('참가 처리에 실패했어요. 다시 시도해주세요.'); }
+  }
+
+  async function handleRemoveParticipant(roomId, name){
+    if (!dbRef) return;
+    if (!(authedRooms[roomId] || isAdmin)) return;
+    var ok = await showConfirmModal(name + '님을 참가자 명단에서 제외할까요?');
+    if (!ok) return;
+    try{
+      var ref = dbRef.doc('rooms/' + roomId);
+      var snap = await ref.get();
+      if (!snap.exists) return;
+      var data = snap.data();
+      var updated = data.participants.filter(function(p){ return p.name !== name; });
+      await ref.update({participants: updated});
+    }catch(e){ showToast('처리에 실패했어요. 다시 시도해주세요.'); }
+  }
+
+  async function handlePinCheck(room){
+    var input = await showPromptModal('방 관리 비밀번호', '4자리 숫자를 입력해주세요', 'numeric', 4);
+    if (input === null) return;
+    if (input === room.pin){ authedRooms[room.id] = true; renderDetail(); }
+    else showToast('비밀번호가 일치하지 않아요.');
+  }
+
+  async function handleToggleStatus(roomId){
+    if (!dbRef) return;
+    var room = findRoom(roomId); if (!room) return;
+    var newStatus = room.status === 'closed' ? 'open' : 'closed';
+    try{ await dbRef.doc('rooms/' + roomId).update({status: newStatus}); }
+    catch(e){ showToast('처리에 실패했어요.'); }
+  }
+
+  async function handleDelete(roomId){
+    if (!dbRef) return;
+    var ok = await showConfirmModal('정말 이 방을 삭제할까요? 되돌릴 수 없어요.', true);
+    if (!ok) return;
+    try{ await dbRef.doc('rooms/' + roomId).delete(); closeDetail(); }
+    catch(e){ showToast('삭제에 실패했어요.'); }
+  }
+
+  async function handleCreateSubmit(e){
+    e.preventDefault();
+    if (!dbRef) return;
+    var form = e.target;
+    var title = form.title.value.trim();
+    var host = form.host.value.trim();
+    var description = form.description.value.trim();
+    if (!title){ showToast('모임 제목을 입력해주세요.'); return; }
+    if (!host){ showToast('주최자 닉네임을 입력해주세요.'); return; }
+    if (!description){ showToast('모임 소개를 입력해주세요.'); return; }
+    var pin = form.pin.value.trim();
+    if (!/^[0-9]{4}$/.test(pin)){ showToast('관리 비밀번호는 숫자 4자리로 입력해주세요.'); return; }
+    var capacity = parseInt(form.capacity.value, 10);
+    if (!capacity || capacity < 2){ showToast('모집 인원은 2명 이상으로 입력해주세요.'); return; }
+    var dtVal = form.datetime.value;
+    if (!dtVal){ showToast('모임 일시를 선택해주세요.'); return; }
+    var iso;
+    try{ iso = new Date(dtVal).toISOString(); }catch(err){ showToast('일시 형식이 올바르지 않아요.'); return; }
+
+    var submitBtn = form.querySelector('button[type=submit]');
+    submitBtn.disabled = true; submitBtn.textContent = '만드는 중...';
+    try{
+      await dbRef.collection('rooms').add({
+        title: title, host: host, pin: pin,
+        capacityMax: capacity, datetime: iso, cost: form.cost.value.trim(),
+        imageUrl: form.imageUrl.value.trim(), description: form.description.value.trim(),
+        status: 'open', participants: [], createdAt: new Date().toISOString()
+      });
+      form.reset(); closeCreate();
+    }catch(err){ showToast('방 생성에 실패했어요. 다시 시도해주세요.'); }
+    finally{ submitBtn.disabled = false; submitBtn.textContent = '방 만들기'; }
+  }
+
+  function openCreate(){ els.createOverlay.hidden = false; els.createForm.title.focus(); }
+  function closeCreate(){ els.createOverlay.hidden = true; }
+
+  els.createBtn.addEventListener('click', openCreate);
+  els.createClose.addEventListener('click', closeCreate);
+  els.createCancel.addEventListener('click', closeCreate);
+  els.createOverlay.addEventListener('click', function(e){ if (e.target === els.createOverlay) closeCreate(); });
+  els.detailOverlay.addEventListener('click', function(e){ if (e.target === els.detailOverlay) closeDetail(); });
+  els.createForm.addEventListener('submit', handleCreateSubmit);
+
+  /* ================= CAMPFIRE (모닥불) ================= */
+  var campfireCache = [];
+  var openCampfireId = null;
+  var authedCampfire = {};
+  var cEls = {
+    createBtn: document.getElementById('campfireCreateBtn'),
+    count: document.getElementById('campfireCount'),
+    loading: document.getElementById('campfireLoading'),
+    empty: document.getElementById('campfireEmpty'),
+    grid: document.getElementById('campfireGrid'),
+    createOverlay: document.getElementById('campfireCreateOverlay'),
+    createForm: document.getElementById('campfireCreateForm'),
+    createClose: document.getElementById('campfireCreateClose'),
+    createCancel: document.getElementById('campfireCreateCancel'),
+    detailOverlay: document.getElementById('campfireDetailOverlay'),
+    detailModal: document.getElementById('campfireDetailModal'),
+  };
+
+  function getLikedSet(){
+    try{ return new Set(JSON.parse(localStorage.getItem('campfireLikes') || '[]')); }
+    catch(e){ return new Set(); }
+  }
+  function saveLikedSet(set){
+    try{ localStorage.setItem('campfireLikes', JSON.stringify(Array.from(set))); }
+    catch(e){ /* storage unavailable — like still works this visit, just not remembered */ }
+  }
+  function flameTier(likes){
+    if (likes >= 10) return 3;
+    if (likes >= 3) return 2;
+    return 1;
+  }
+  function flameGlyph(tier){ return tier >= 3 ? '🔥🔥🔥' : '🔥'; }
+
+  function findCampfire(id){
+    for (var i=0;i<campfireCache.length;i++){ if (campfireCache[i].id === id) return campfireCache[i]; }
+    return null;
+  }
+
+  function buildCampfireThumb(item, tier){
+    var wrap = document.createElement('div');
+    wrap.className = 'card-thumb';
+    if (item.imageUrl){
+      var img = document.createElement('img');
+      img.src = item.imageUrl; img.alt = item.title;
+      img.onerror = function(){ wrap.removeChild(img); wrap.setAttribute('style', placeholderStyle(item.title)); };
+      wrap.appendChild(img);
+    } else {
+      wrap.setAttribute('style', placeholderStyle(item.title));
+      var flame = document.createElement('div');
+      flame.className = 'flame-' + tier;
+      flame.textContent = flameGlyph(tier);
+      wrap.appendChild(flame);
+    }
+    var badge = document.createElement('div');
+    badge.className = 'badge fire';
+    badge.textContent = '🔥 ' + (item.likes || 0);
+    wrap.appendChild(badge);
+    return wrap;
+  }
+
+  function buildCampfireCard(item){
+    var tier = flameTier(item.likes || 0);
+    var card = document.createElement('button');
+    card.type = 'button'; card.className = 'card';
+    card.setAttribute('aria-label', item.title + ' 상세보기');
+    card.appendChild(buildCampfireThumb(item, tier));
+
+    var body = document.createElement('div'); body.className = 'card-body';
+    var title = document.createElement('div'); title.className = 'card-title'; title.textContent = item.title;
+    body.appendChild(title);
+
+    var meta = document.createElement('div'); meta.className = 'card-meta';
+    var whoLine = document.createElement('span'); whoLine.innerHTML = '추천인 <b></b>';
+    whoLine.querySelector('b').textContent = (item.nickname && item.nickname.trim()) ? item.nickname : '익명';
+    meta.appendChild(whoLine);
+    body.appendChild(meta);
+
+    if (item.category){
+      var cat = document.createElement('div'); cat.className = 'cost-tag'; cat.textContent = item.category;
+      body.appendChild(cat);
+    }
+
+    var likeRow = document.createElement('div'); likeRow.className = 'like-row';
+    var likeBtn = document.createElement('button');
+    likeBtn.type = 'button'; likeBtn.className = 'like-btn';
+    var liked = getLikedSet().has(item.id);
+    if (liked) likeBtn.classList.add('liked');
+    likeBtn.textContent = (liked ? '👍 추천함 ' : '👍 좋아요 ') + (item.likes || 0);
+    likeBtn.disabled = liked || !dbRef;
+    likeBtn.addEventListener('click', function(e){ e.stopPropagation(); handleLike(item.id, likeBtn); });
+    var reviewCount = document.createElement('span'); reviewCount.className = 'review-count-tag';
+    reviewCount.textContent = '💬 ' + (item.reviews ? item.reviews.length : 0);
+    likeRow.appendChild(likeBtn); likeRow.appendChild(reviewCount);
+    body.appendChild(likeRow);
+
+    card.appendChild(body);
+    card.addEventListener('click', function(){ openCampfireDetail(item.id); });
+    return card;
+  }
+
+  function renderCampfire(){
+    cEls.grid.innerHTML = '';
+    cEls.count.textContent = campfireCache.length ? ('전체 ' + campfireCache.length + '개의 추천') : '';
+    cEls.empty.hidden = campfireCache.length !== 0;
+    campfireCache.forEach(function(item){ cEls.grid.appendChild(buildCampfireCard(item)); });
+  }
+
+  async function handleLike(id, btnEl){
+    if (!dbRef) return;
+    var likedSet = getLikedSet();
+    if (likedSet.has(id)) return;
+    btnEl.disabled = true;
+    try{
+      var ref = dbRef.doc('campfire/' + id);
+      var snap = await ref.get();
+      if (!snap.exists) return;
+      var data = snap.data();
+      await ref.update({likes: (data.likes || 0) + 1});
+      likedSet.add(id); saveLikedSet(likedSet);
+    }catch(e){ showToast('처리에 실패했어요. 다시 시도해주세요.'); btnEl.disabled = false; }
+  }
+
+  function openCampfireDetail(id){ openCampfireId = id; renderCampfireDetail(); cEls.detailOverlay.hidden = false; }
+  function closeCampfireDetail(){ openCampfireId = null; cEls.detailOverlay.hidden = true; }
+
+  function renderCampfireDetail(){
+    var item = findCampfire(openCampfireId);
+    if (!item){ closeCampfireDetail(); return; }
+    var tier = flameTier(item.likes || 0);
+    var m = cEls.detailModal;
+    m.innerHTML = '';
+
+    var head = document.createElement('div'); head.className = 'modal-head';
+    var h2 = document.createElement('h2'); h2.textContent = item.title;
+    var closeBtn = document.createElement('button'); closeBtn.className = 'modal-close'; closeBtn.setAttribute('aria-label','닫기'); closeBtn.textContent = '✕';
+    closeBtn.addEventListener('click', closeCampfireDetail);
+    head.appendChild(h2); head.appendChild(closeBtn);
+    m.appendChild(head);
+
+    m.appendChild(buildCampfireThumb(item, tier));
+
+    var body = document.createElement('div'); body.className = 'modal-body';
+    var metaGrid = document.createElement('div'); metaGrid.className = 'detail-meta-grid';
+    [['추천인', (item.nickname && item.nickname.trim()) ? item.nickname : '익명'], ['분류', item.category || '-']].forEach(function(pair){
+      var mi = document.createElement('div'); mi.className = 'meta-item';
+      var k = document.createElement('div'); k.className='k'; k.textContent = pair[0];
+      var v = document.createElement('div'); v.className='v'; v.textContent = pair[1];
+      mi.appendChild(k); mi.appendChild(v);
+      metaGrid.appendChild(mi);
+    });
+    body.appendChild(metaGrid);
+
+    var desc = document.createElement('div'); desc.className = 'desc-block'; desc.textContent = item.description || '';
+    body.appendChild(desc);
+
+    if (item.link){
+      var linkP = document.createElement('p');
+      var a = document.createElement('a'); a.href = item.link; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = '🔗 감상하러 가기 →';
+      linkP.appendChild(a);
+      body.appendChild(linkP);
+    }
+
+    var likeRow = document.createElement('div'); likeRow.className = 'like-row'; likeRow.style.marginBottom = '18px';
+    var likeBtn = document.createElement('button'); likeBtn.type = 'button'; likeBtn.className = 'btn btn-ghost btn-sm';
+    var liked = getLikedSet().has(item.id);
+    if (liked) likeBtn.classList.add('liked');
+    likeBtn.textContent = (liked ? '👍 이미 추천했어요 · ' : '👍 좋아요 누르기 · ') + (item.likes || 0);
+    likeBtn.disabled = liked || !dbRef;
+    likeBtn.addEventListener('click', function(){ handleLike(item.id, likeBtn); });
+    likeRow.appendChild(likeBtn);
+    body.appendChild(likeRow);
+
+    var reviewH = document.createElement('div'); reviewH.className = 'section-h';
+    reviewH.textContent = 'REVIEW — 감상평 (' + (item.reviews ? item.reviews.length : 0) + ')';
+    body.appendChild(reviewH);
+
+    if (!item.reviews || item.reviews.length === 0){
+      var none = document.createElement('div'); none.className = 'muted'; none.style.marginBottom = '12px';
+      none.textContent = '아직 남겨진 감상평이 없어요.';
+      body.appendChild(none);
+    } else {
+      item.reviews.forEach(function(r){
+        var ri = document.createElement('div'); ri.className = 'review-item';
+        var whoRow = document.createElement('div'); whoRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center;';
+        var who = document.createElement('div'); who.className = 'who'; who.textContent = (r.name && r.name.trim()) ? r.name : '익명';
+        whoRow.appendChild(who);
+        var delBtn = buildMsgDeleteBtn('campfire', item.id, r);
+        if (delBtn) whoRow.appendChild(delBtn);
+        var msg = document.createElement('div'); msg.className = 'msg'; msg.textContent = r.text;
+        ri.appendChild(whoRow); ri.appendChild(msg);
+        body.appendChild(ri);
+      });
+    }
+
+    var form = document.createElement('form'); form.style.marginTop = '14px'; form.noValidate = true;
+    var nameField = document.createElement('div'); nameField.className = 'field';
+    var nameInput = document.createElement('input'); nameInput.placeholder = '닉네임 (선택, 비우면 익명)'; nameInput.maxLength = 16;
+    nameField.appendChild(nameInput);
+    var msgField = document.createElement('div'); msgField.className = 'field';
+    var msgInput = document.createElement('textarea'); msgInput.placeholder = '이 작품에 대한 감상, 평을 남겨주세요.'; msgInput.maxLength = 300;
+    msgField.appendChild(msgInput);
+    var pinField = document.createElement('div'); pinField.className = 'field';
+    var pinInput = document.createElement('input'); pinInput.setAttribute('inputmode', 'numeric'); pinInput.maxLength = 4;
+    pinInput.placeholder = '삭제 비밀번호 (선택, 4자리)';
+    pinField.appendChild(pinInput);
+    var actions = document.createElement('div'); actions.className = 'form-actions';
+    var submitBtn = document.createElement('button'); submitBtn.type = 'submit'; submitBtn.className = 'btn btn-primary'; submitBtn.textContent = '감상평 남기기';
+    submitBtn.disabled = !dbRef;
+    actions.appendChild(submitBtn);
+    form.appendChild(nameField); form.appendChild(msgField); form.appendChild(pinField); form.appendChild(actions);
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var msgVal = msgInput.value.trim();
+      if (!msgVal){ showToast('감상평 내용을 입력해주세요.'); return; }
+      var pinVal = pinInput.value.trim();
+      if (pinVal && !/^[0-9]{4}$/.test(pinVal)){ showToast('삭제 비밀번호는 숫자 4자리로 입력하거나 비워두세요.'); return; }
+      handleCampfireReview(item.id, nameInput.value.trim(), msgVal, pinVal, submitBtn);
+    });
+    body.appendChild(form);
+
+    var hasAccess = authedCampfire[item.id] || isAdmin;
+    if (hasAccess){
+      var adminBox = document.createElement('div'); adminBox.className = 'admin-box';
+      var line = document.createElement('div'); line.className = 'lock-line';
+      var label = document.createElement('div'); label.className = 'muted';
+      label.textContent = authedCampfire[item.id] ? '🔓 작성자 인증됨' : '🔓 플랫폼 관리자 권한으로 관리 중';
+      var delBtn = document.createElement('button'); delBtn.className = 'btn btn-danger btn-sm'; delBtn.textContent = '삭제';
+      delBtn.addEventListener('click', function(){ handleCampfireDelete(item.id); });
+      line.appendChild(label); line.appendChild(delBtn);
+      adminBox.appendChild(line);
+      body.appendChild(adminBox);
+    } else if (item.pin){
+      var adminBox2 = document.createElement('div'); adminBox2.className = 'admin-box';
+      var line2 = document.createElement('div'); line2.className = 'lock-line';
+      var label2 = document.createElement('div'); label2.className = 'muted'; label2.textContent = '🔒 작성자이신가요?';
+      var authBtn = document.createElement('button'); authBtn.className = 'btn btn-ghost btn-sm'; authBtn.textContent = '삭제 인증';
+      authBtn.disabled = !dbRef;
+      authBtn.addEventListener('click', function(){ handleCampfirePinCheck(item); });
+      line2.appendChild(label2); line2.appendChild(authBtn);
+      adminBox2.appendChild(line2);
+      body.appendChild(adminBox2);
+    }
+
+    m.appendChild(body);
+  }
+
+  async function handleCampfirePinCheck(item){
+    var input = await showPromptModal('삭제 비밀번호', '4자리 숫자를 입력해주세요', 'numeric', 4);
+    if (input === null) return;
+    if (input === item.pin){ authedCampfire[item.id] = true; renderCampfireDetail(); }
+    else showToast('비밀번호가 일치하지 않아요.');
+  }
+
+  async function handleCampfireDelete(id){
+    if (!dbRef) return;
+    var ok = await showConfirmModal('정말 이 추천을 삭제할까요? 되돌릴 수 없어요.', true);
+    if (!ok) return;
+    try{ await dbRef.doc('campfire/' + id).delete(); closeCampfireDetail(); }
+    catch(e){ showToast('삭제에 실패했어요.'); }
+  }
+
+  async function handleCampfireReview(id, name, text, pin, submitBtn){
+    if (!text || !dbRef) return;
+    submitBtn.disabled = true;
+    try{
+      var ref = dbRef.doc('campfire/' + id);
+      var snap = await ref.get();
+      if (!snap.exists) return;
+      var data = snap.data();
+      var updated = (data.reviews || []).concat([{name: name, text: text, pin: pin, createdAt: new Date().toISOString()}]);
+      await ref.update({reviews: updated});
+    }catch(e){ showToast('등록에 실패했어요. 다시 시도해주세요.'); }
+    finally{ submitBtn.disabled = false; }
+  }
+
+  async function handleCampfireCreateSubmit(e){
+    e.preventDefault();
+    if (!dbRef) return;
+    var form = e.target;
+    var title = form.title.value.trim();
+    var description = form.description.value.trim();
+    if (!title){ showToast('작품/컨텐츠 이름을 입력해주세요.'); return; }
+    if (!description){ showToast('추천 이유를 입력해주세요.'); return; }
+    var pin = form.pin.value.trim();
+    if (pin && !/^[0-9]{4}$/.test(pin)){ showToast('삭제 비밀번호는 숫자 4자리로 입력하거나 비워두세요.'); return; }
+    var submitBtn = form.querySelector('button[type=submit]');
+    submitBtn.disabled = true; submitBtn.textContent = '올리는 중...';
+    try{
+      await dbRef.collection('campfire').add({
+        title: title,
+        category: form.category.value.trim(),
+        nickname: form.nickname.value.trim(),
+        imageUrl: form.imageUrl.value.trim(),
+        link: form.link.value.trim(),
+        pin: pin,
+        description: description,
+        likes: 0,
+        reviews: [],
+        createdAt: new Date().toISOString()
+      });
+      form.reset(); closeCampfireCreate();
+    }catch(err){ showToast('등록에 실패했어요. 다시 시도해주세요.'); }
+    finally{ submitBtn.disabled = false; submitBtn.textContent = '모닥불에 올리기'; }
+  }
+
+  function openCampfireCreate(){ cEls.createOverlay.hidden = false; cEls.createForm.title.focus(); }
+  function closeCampfireCreate(){ cEls.createOverlay.hidden = true; }
+
+  cEls.createBtn.addEventListener('click', openCampfireCreate);
+  cEls.createClose.addEventListener('click', closeCampfireCreate);
+  cEls.createCancel.addEventListener('click', closeCampfireCreate);
+  cEls.createOverlay.addEventListener('click', function(e){ if (e.target === cEls.createOverlay) closeCampfireCreate(); });
+  cEls.detailOverlay.addEventListener('click', function(e){ if (e.target === cEls.detailOverlay) closeCampfireDetail(); });
+  cEls.createForm.addEventListener('submit', handleCampfireCreateSubmit);
+
+  /* ================= WORRIES (고민 포스트잇) ================= */
+  var worriesCache = [];
+  var openWorryId = null;
+  var authedWorries = {};
+  var wEls = {
+    createBtn: document.getElementById('worryCreateBtn'),
+    count: document.getElementById('worryCount'),
+    loading: document.getElementById('worryLoading'),
+    empty: document.getElementById('worryEmpty'),
+    grid: document.getElementById('worryGrid'),
+    createOverlay: document.getElementById('worryCreateOverlay'),
+    createForm: document.getElementById('worryCreateForm'),
+    createClose: document.getElementById('worryCreateClose'),
+    createCancel: document.getElementById('worryCreateCancel'),
+    detailOverlay: document.getElementById('worryDetailOverlay'),
+    detailModal: document.getElementById('worryDetailModal'),
+  };
+
+  function timeAgo(iso){
+    try{
+      var diffMs = Date.now() - new Date(iso).getTime();
+      var mins = Math.floor(diffMs/60000);
+      if (mins < 1) return '방금';
+      if (mins < 60) return mins + '분 전';
+      var hrs = Math.floor(mins/60);
+      if (hrs < 24) return hrs + '시간 전';
+      var days = Math.floor(hrs/24);
+      return days + '일 전';
+    }catch(e){ return ''; }
+  }
+
+  function buildStickyCard(w, idx){
+    var card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'sticky ' + stickyColorClass(w.id);
+    var tilt = (idx % 2 === 0 ? -2.4 : 2.2) + (idx % 3) * 0.5;
+    card.style.setProperty('--tilt', tilt + 'deg');
+    var text = document.createElement('div'); text.className = 'sticky-text'; text.textContent = w.text;
+    var foot = document.createElement('div'); foot.className = 'sticky-foot';
+    var left = document.createElement('span'); left.textContent = '💬 ' + w.replies.length;
+    var right = document.createElement('span'); right.textContent = timeAgo(w.createdAt);
+    foot.appendChild(left); foot.appendChild(right);
+    card.appendChild(text); card.appendChild(foot);
+    card.addEventListener('click', function(){ openWorryDetail(w.id); });
+    return card;
+  }
+
+  function renderWorries(){
+    wEls.grid.innerHTML = '';
+    wEls.count.textContent = worriesCache.length ? ('전체 ' + worriesCache.length + '개의 포스트잇') : '';
+    wEls.empty.hidden = worriesCache.length !== 0;
+    worriesCache.forEach(function(w, idx){ wEls.grid.appendChild(buildStickyCard(w, idx)); });
+  }
+
+  function findWorry(id){
+    for (var i=0;i<worriesCache.length;i++){ if (worriesCache[i].id === id) return worriesCache[i]; }
+    return null;
+  }
+
+  function openWorryDetail(id){ openWorryId = id; renderWorryDetail(); wEls.detailOverlay.hidden = false; }
+  function closeWorryDetail(){ openWorryId = null; wEls.detailOverlay.hidden = true; }
+
+  function renderWorryDetail(){
+    var w = findWorry(openWorryId);
+    if (!w){ closeWorryDetail(); return; }
+    var m = wEls.detailModal;
+    m.innerHTML = '';
+
+    var head = document.createElement('div'); head.className = 'modal-head';
+    var h2 = document.createElement('h2'); h2.textContent = '고민 포스트잇';
+    var closeBtn = document.createElement('button'); closeBtn.className = 'modal-close'; closeBtn.setAttribute('aria-label','닫기'); closeBtn.textContent = '✕';
+    closeBtn.addEventListener('click', closeWorryDetail);
+    head.appendChild(h2); head.appendChild(closeBtn);
+    m.appendChild(head);
+
+    var body = document.createElement('div'); body.className = 'modal-body';
+    var desc = document.createElement('div'); desc.className = 'desc-block'; desc.textContent = w.text;
+    body.appendChild(desc);
+
+    var replyH = document.createElement('div'); replyH.className = 'section-h';
+    replyH.textContent = 'MESSAGE — 응원과 조언 (' + w.replies.length + ')';
+    body.appendChild(replyH);
+
+    if (w.replies.length === 0){
+      var none = document.createElement('div'); none.className = 'muted'; none.style.marginBottom='12px';
+      none.textContent = '아직 남겨진 메시지가 없어요. 첫 응원을 남겨보세요.';
+      body.appendChild(none);
+    } else {
+      w.replies.forEach(function(r, ridx){
+        var item = document.createElement('div'); item.className = 'reply-item ' + STICKY_COLORS[ridx % STICKY_COLORS.length];
+        var whoRow = document.createElement('div'); whoRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center;';
+        var who = document.createElement('div'); who.className = 'who'; who.textContent = (r.name && r.name.trim()) ? r.name : '익명';
+        whoRow.appendChild(who);
+        var delBtn = buildMsgDeleteBtn('worry', w.id, r);
+        if (delBtn) whoRow.appendChild(delBtn);
+        var msg = document.createElement('div'); msg.className = 'msg'; msg.textContent = r.text;
+        item.appendChild(whoRow); item.appendChild(msg);
+        body.appendChild(item);
+      });
+    }
+
+    var form = document.createElement('form');
+    form.style.marginTop = '14px'; form.noValidate = true;
+    var nameField = document.createElement('div'); nameField.className = 'field';
+    var nameInput = document.createElement('input'); nameInput.placeholder = '닉네임 (선택, 비우면 익명)'; nameInput.maxLength = 16;
+    nameField.appendChild(nameInput);
+    var msgField = document.createElement('div'); msgField.className = 'field';
+    var msgInput = document.createElement('textarea'); msgInput.placeholder = '응원, 조언, 칭찬을 자유롭게 남겨주세요.'; msgInput.maxLength = 300;
+    msgField.appendChild(msgInput);
+    var pinField = document.createElement('div'); pinField.className = 'field';
+    var pinInput = document.createElement('input'); pinInput.setAttribute('inputmode', 'numeric'); pinInput.maxLength = 4;
+    pinInput.placeholder = '삭제 비밀번호 (선택, 4자리)';
+    pinField.appendChild(pinInput);
+    var actions = document.createElement('div'); actions.className = 'form-actions';
+    var submitBtn = document.createElement('button'); submitBtn.type = 'submit'; submitBtn.className = 'btn btn-primary'; submitBtn.textContent = '메시지 남기기';
+    submitBtn.disabled = !dbRef;
+    actions.appendChild(submitBtn);
+    form.appendChild(nameField); form.appendChild(msgField); form.appendChild(pinField); form.appendChild(actions);
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var msgVal = msgInput.value.trim();
+      if (!msgVal){ showToast('메시지 내용을 입력해주세요.'); return; }
+      var pinVal = pinInput.value.trim();
+      if (pinVal && !/^[0-9]{4}$/.test(pinVal)){ showToast('삭제 비밀번호는 숫자 4자리로 입력하거나 비워두세요.'); return; }
+      handleWorryReply(w.id, nameInput.value.trim(), msgVal, pinVal, submitBtn);
+    });
+    body.appendChild(form);
+
+    var hasAccess = authedWorries[w.id] || isAdmin;
+    if (hasAccess){
+      var adminBox = document.createElement('div'); adminBox.className = 'admin-box';
+      var line = document.createElement('div'); line.className = 'lock-line';
+      var label = document.createElement('div'); label.className = 'muted';
+      label.textContent = authedWorries[w.id] ? '🔓 작성자 인증됨' : '🔓 플랫폼 관리자 권한으로 관리 중';
+      var delBtn = document.createElement('button'); delBtn.className = 'btn btn-danger btn-sm'; delBtn.textContent = '삭제';
+      delBtn.addEventListener('click', function(){ handleWorryDelete(w.id); });
+      line.appendChild(label); line.appendChild(delBtn);
+      adminBox.appendChild(line);
+      body.appendChild(adminBox);
+    } else if (w.pin){
+      var adminBox2 = document.createElement('div'); adminBox2.className = 'admin-box';
+      var line2 = document.createElement('div'); line2.className = 'lock-line';
+      var label2 = document.createElement('div'); label2.className = 'muted'; label2.textContent = '🔒 작성자이신가요?';
+      var authBtn = document.createElement('button'); authBtn.className = 'btn btn-ghost btn-sm'; authBtn.textContent = '삭제 인증';
+      authBtn.disabled = !dbRef;
+      authBtn.addEventListener('click', function(){ handleWorryPinCheck(w); });
+      line2.appendChild(label2); line2.appendChild(authBtn);
+      adminBox2.appendChild(line2);
+      body.appendChild(adminBox2);
+    }
+
+    m.appendChild(body);
+  }
+
+  async function handleWorryPinCheck(w){
+    var input = await showPromptModal('삭제 비밀번호', '4자리 숫자를 입력해주세요', 'numeric', 4);
+    if (input === null) return;
+    if (input === w.pin){ authedWorries[w.id] = true; renderWorryDetail(); }
+    else showToast('비밀번호가 일치하지 않아요.');
+  }
+
+  async function handleWorryDelete(id){
+    if (!dbRef) return;
+    var ok = await showConfirmModal('정말 이 포스트잇을 삭제할까요? 되돌릴 수 없어요.', true);
+    if (!ok) return;
+    try{ await dbRef.doc('worries/' + id).delete(); closeWorryDetail(); }
+    catch(e){ showToast('삭제에 실패했어요.'); }
+  }
+
+  async function handleWorryReply(worryId, name, text, pin, submitBtn){
+    if (!text || !dbRef) return;
+    submitBtn.disabled = true;
+    try{
+      var ref = dbRef.doc('worries/' + worryId);
+      var snap = await ref.get();
+      if (!snap.exists) return;
+      var data = snap.data();
+      var updated = data.replies.concat([{name: name, text: text, pin: pin, createdAt: new Date().toISOString()}]);
+      await ref.update({replies: updated});
+    }catch(e){ showToast('등록에 실패했어요. 다시 시도해주세요.'); }
+    finally{ submitBtn.disabled = false; }
+  }
+
+  async function handleWorryCreateSubmit(e){
+    e.preventDefault();
+    if (!dbRef) return;
+    var text = wEls.createForm.text.value.trim();
+    if (!text){ showToast('고민 내용을 입력해주세요.'); return; }
+    var pin = wEls.createForm.pin.value.trim();
+    if (pin && !/^[0-9]{4}$/.test(pin)){ showToast('삭제 비밀번호는 숫자 4자리로 입력하거나 비워두세요.'); return; }
+    var submitBtn = wEls.createForm.querySelector('button[type=submit]');
+    submitBtn.disabled = true; submitBtn.textContent = '붙이는 중...';
+    try{
+      await dbRef.collection('worries').add({ text: text, pin: pin, replies: [], createdAt: new Date().toISOString() });
+      wEls.createForm.reset(); closeWorryCreate();
+    }catch(err){ showToast('등록에 실패했어요. 다시 시도해주세요.'); }
+    finally{ submitBtn.disabled = false; submitBtn.textContent = '익명으로 붙이기'; }
+  }
+
+  function openWorryCreate(){ wEls.createOverlay.hidden = false; wEls.createForm.text.focus(); }
+  function closeWorryCreate(){ wEls.createOverlay.hidden = true; }
+
+  wEls.createBtn.addEventListener('click', openWorryCreate);
+  wEls.createClose.addEventListener('click', closeWorryCreate);
+  wEls.createCancel.addEventListener('click', closeWorryCreate);
+  wEls.createOverlay.addEventListener('click', function(e){ if (e.target === wEls.createOverlay) closeWorryCreate(); });
+  wEls.detailOverlay.addEventListener('click', function(e){ if (e.target === wEls.detailOverlay) closeWorryDetail(); });
+  wEls.createForm.addEventListener('submit', handleWorryCreateSubmit);
+
+  /* ================= NOTICES (공지사항) ================= */
+  var noticesCache = [];
+  var openNoticeId = null;
+  var editingNoticeId = null;
+  var nEls = {
+    createBtn: document.getElementById('noticeCreateBtn'),
+    adminHint: document.getElementById('noticeAdminHint'),
+    count: document.getElementById('noticeCount'),
+    loading: document.getElementById('noticeLoading'),
+    empty: document.getElementById('noticeEmpty'),
+    list: document.getElementById('noticeList'),
+    formOverlay: document.getElementById('noticeFormOverlay'),
+    formTitle: document.getElementById('noticeFormTitle'),
+    form: document.getElementById('noticeForm'),
+    formClose: document.getElementById('noticeFormClose'),
+    formCancel: document.getElementById('noticeFormCancel'),
+    formSubmit: document.getElementById('noticeFormSubmit'),
+    detailOverlay: document.getElementById('noticeDetailOverlay'),
+    detailModal: document.getElementById('noticeDetailModal'),
+  };
+
+  function findNotice(id){
+    for (var i=0;i<noticesCache.length;i++){ if (noticesCache[i].id === id) return noticesCache[i]; }
+    return null;
+  }
+
+  function buildNoticeItem(n){
+    var item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'notice-item';
+    var top = document.createElement('div'); top.className = 'notice-top';
+    var source = document.createElement('span'); source.className = 'notice-source'; source.textContent = n.source || '공지';
+    var date = document.createElement('span'); date.className = 'notice-date'; date.textContent = n.eventDate ? ('🗓 ' + n.eventDate) : '일정 미정';
+    top.appendChild(source); top.appendChild(date);
+    var title = document.createElement('div'); title.className = 'notice-title'; title.textContent = n.title;
+    var snippet = document.createElement('div'); snippet.className = 'notice-snippet'; snippet.textContent = n.body;
+    item.appendChild(top); item.appendChild(title); item.appendChild(snippet);
+    item.addEventListener('click', function(){ openNoticeDetail(n.id); });
+    return item;
+  }
+
+  function renderNotices(){
+    nEls.list.innerHTML = '';
+    nEls.count.textContent = noticesCache.length ? ('전체 ' + noticesCache.length + '개의 알림') : '';
+    nEls.empty.hidden = noticesCache.length !== 0;
+    noticesCache.forEach(function(n){ nEls.list.appendChild(buildNoticeItem(n)); });
+  }
+
+  function openNoticeDetail(id){ openNoticeId = id; renderNoticeDetail(); nEls.detailOverlay.hidden = false; }
+  function closeNoticeDetail(){ openNoticeId = null; nEls.detailOverlay.hidden = true; }
+
+  function renderNoticeDetail(){
+    var n = findNotice(openNoticeId);
+    if (!n){ closeNoticeDetail(); return; }
+    var m = nEls.detailModal;
+    m.innerHTML = '';
+    var head = document.createElement('div'); head.className = 'modal-head';
+    var h2 = document.createElement('h2'); h2.textContent = n.title;
+    var closeBtn = document.createElement('button'); closeBtn.className = 'modal-close'; closeBtn.setAttribute('aria-label','닫기'); closeBtn.textContent = '✕';
+    closeBtn.addEventListener('click', closeNoticeDetail);
+    head.appendChild(h2); head.appendChild(closeBtn);
+    m.appendChild(head);
+
+    var body = document.createElement('div'); body.className = 'modal-body';
+    var metaGrid = document.createElement('div'); metaGrid.className = 'detail-meta-grid';
+    [['출처', n.source || '-'], ['일정', n.eventDate || '미정']].forEach(function(pair){
+      var item = document.createElement('div'); item.className = 'meta-item';
+      var k = document.createElement('div'); k.className='k'; k.textContent = pair[0];
+      var v = document.createElement('div'); v.className='v'; v.textContent = pair[1];
+      item.appendChild(k); item.appendChild(v);
+      metaGrid.appendChild(item);
+    });
+    body.appendChild(metaGrid);
+
+    var desc = document.createElement('div'); desc.className = 'desc-block'; desc.textContent = n.body;
+    body.appendChild(desc);
+
+    if (n.link){
+      var linkP = document.createElement('p');
+      var a = document.createElement('a'); a.href = n.link; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = '관련 링크 열기 →';
+      linkP.appendChild(a);
+      body.appendChild(linkP);
+    }
+
+    if (isAdmin){
+      var adminBox = document.createElement('div'); adminBox.className = 'admin-box';
+      var line = document.createElement('div'); line.className = 'admin-actions';
+      var editBtn = document.createElement('button'); editBtn.className = 'btn btn-ghost btn-sm'; editBtn.textContent = '이 알림 수정하기';
+      editBtn.addEventListener('click', function(){ closeNoticeDetail(); openNoticeForm(n); });
+      var delBtn = document.createElement('button'); delBtn.className = 'btn btn-danger btn-sm'; delBtn.textContent = '알림 삭제';
+      delBtn.addEventListener('click', function(){ handleNoticeDelete(n.id); });
+      line.appendChild(editBtn); line.appendChild(delBtn);
+      adminBox.appendChild(line);
+      body.appendChild(adminBox);
+    }
+    m.appendChild(body);
+  }
+
+  function openNoticeForm(notice){
+    editingNoticeId = notice ? notice.id : null;
+    nEls.formTitle.textContent = notice ? '알림 수정' : '알림 추가';
+    nEls.formSubmit.textContent = notice ? '수정 완료' : '등록하기';
+    nEls.form.reset();
+    if (notice){
+      nEls.form.title.value = notice.title;
+      nEls.form.source.value = notice.source || '';
+      nEls.form.eventDate.value = notice.eventDate || '';
+      nEls.form.link.value = notice.link || '';
+      nEls.form.body.value = notice.body;
+    }
+    nEls.formOverlay.hidden = false;
+    nEls.form.title.focus();
+  }
+  function closeNoticeForm(){ nEls.formOverlay.hidden = true; editingNoticeId = null; }
+
+  async function handleNoticeFormSubmit(e){
+    e.preventDefault();
+    if (!dbRef || !isAdmin) return;
+    var form = e.target;
+    var payload = {
+      title: form.title.value.trim(),
+      source: form.source.value.trim(),
+      eventDate: form.eventDate.value.trim(),
+      link: form.link.value.trim(),
+      body: form.body.value.trim(),
+    };
+    if (!payload.title){ showToast('제목을 입력해주세요.'); return; }
+    if (!payload.body){ showToast('내용을 입력해주세요.'); return; }
+    nEls.formSubmit.disabled = true;
+    try{
+      if (editingNoticeId){
+        payload.updatedAt = new Date().toISOString();
+        await dbRef.doc('notices/' + editingNoticeId).update(payload);
+      } else {
+        payload.createdAt = new Date().toISOString();
+        payload.updatedAt = payload.createdAt;
+        await dbRef.collection('notices').add(payload);
+      }
+      closeNoticeForm();
+    }catch(err){ showToast('저장에 실패했어요. 다시 시도해주세요.'); }
+    finally{ nEls.formSubmit.disabled = false; }
+  }
+
+  async function handleNoticeDelete(id){
+    if (!dbRef || !isAdmin) return;
+    var ok = await showConfirmModal('정말 이 알림을 삭제할까요? 되돌릴 수 없어요.', true);
+    if (!ok) return;
+    try{ await dbRef.doc('notices/' + id).delete(); closeNoticeDetail(); }
+    catch(e){ showToast('삭제에 실패했어요.'); }
+  }
+
+  nEls.createBtn.addEventListener('click', function(){ openNoticeForm(null); });
+  nEls.formClose.addEventListener('click', closeNoticeForm);
+  nEls.formCancel.addEventListener('click', closeNoticeForm);
+  nEls.formOverlay.addEventListener('click', function(e){ if (e.target === nEls.formOverlay) closeNoticeForm(); });
+  nEls.detailOverlay.addEventListener('click', function(e){ if (e.target === nEls.detailOverlay) closeNoticeDetail(); });
+  nEls.form.addEventListener('submit', handleNoticeFormSubmit);
+
+  /* ================= ADMIN ================= */
+  var adminBtn = document.getElementById('adminBtn');
+  function updateAdminUI(){
+    adminBtn.textContent = isAdmin ? '🔓 관리자 모드' : '🔒 관리자';
+    adminBtn.className = isAdmin ? 'admin-pill' : 'btn btn-ghost btn-sm';
+    nEls.createBtn.hidden = !isAdmin;
+    nEls.createBtn.disabled = !(isAdmin && dbRef);
+    nEls.adminHint.hidden = isAdmin;
+    if (openNoticeId) renderNoticeDetail();
+    if (openDetailId) renderDetail();
+    if (openCampfireId) renderCampfireDetail();
+    if (openWorryId) renderWorryDetail();
+  }
+  async function handleAdminClick(){
+    if (isAdmin){ isAdmin = false; updateAdminUI(); return; }
+    if (!dbRef){ showToast('실시간 기능을 사용할 수 없어 관리자 로그인이 불가능해요.'); return; }
+    if (!adminPin){ showToast('관리자 설정을 아직 불러오지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
+    var input = await showPromptModal('관리자 로그인', '관리자 비밀번호를 입력해주세요', 'password');
+    if (input === null) return;
+    if (input === adminPin){ isAdmin = true; updateAdminUI(); }
+    else showToast('비밀번호가 일치하지 않아요.');
+  }
+  adminBtn.addEventListener('click', handleAdminClick);
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape'){ closeCreate(); closeDetail(); closeCampfireCreate(); closeCampfireDetail(); closeWorryCreate(); closeWorryDetail(); closeNoticeForm(); closeNoticeDetail(); }
+  });
+
+  /* ================= INIT ================= */
+  async function init(){
+    try{
+      dbRef = await window.__firebaseDbReady;
+    }catch(e){ dbRef = null; }
+
+    if (!dbRef){
+      els.dbBanner.hidden = false;
+      els.loadingState.hidden = true; els.emptyState.hidden = false;
+      cEls.loading.hidden = true; cEls.empty.hidden = false;
+      wEls.loading.hidden = true; wEls.empty.hidden = false;
+      nEls.loading.hidden = true; nEls.empty.hidden = false;
+      if (!savedGate){ passGate(''); } // no db means the gate password can never be checked — don't trap the visitor behind it
+      return;
+    }
+    els.createBtn.disabled = false;
+    cEls.createBtn.disabled = false;
+    wEls.createBtn.disabled = false;
+
+    try{
+      var pinSnap = await dbRef.doc('config/admin').get();
+      adminPin = pinSnap.exists ? pinSnap.data().pin : null;
+    }catch(e){ adminPin = null; }
+
+    try{
+      var gateSnap = await dbRef.doc('config/gate').get();
+      gatePassword = gateSnap.exists ? gateSnap.data().password : null;
+    }catch(e){ gatePassword = null; }
+    if (!savedGate){
+      if (gatePassword){
+        gateEls.submit.disabled = false;
+        gateEls.hint.textContent = '입장하면 이 브라우저에는 다음부터 자동으로 들어와져요.';
+      } else {
+        gateEls.hint.textContent = '접속 비밀번호가 아직 설정되지 않았어요. 관리자에게 문의해주세요.';
+      }
+    }
+
+    dbRef.collection('rooms').orderBy('createdAt', 'desc').onSnapshot(function(snap){
+      roomsCache = snap.docs.map(function(d){ return Object.assign({id: d.id}, d.data()); });
+      els.loadingState.hidden = true;
+      renderRooms();
+      if (openDetailId) renderDetail();
+    }, function(err){
+      els.loadingState.hidden = true;
+      els.dbBanner.textContent = '⚠️ 실시간 데이터를 불러오는 중 문제가 생겼어요. 새로고침 해보세요.';
+      els.dbBanner.hidden = false;
+    });
+
+    dbRef.collection('campfire').orderBy('createdAt', 'desc').onSnapshot(function(snap){
+      campfireCache = snap.docs.map(function(d){ return Object.assign({id: d.id}, d.data()); });
+      cEls.loading.hidden = true;
+      renderCampfire();
+      if (openCampfireId) renderCampfireDetail();
+    }, function(err){
+      cEls.loading.hidden = true;
+    });
+
+    dbRef.collection('worries').orderBy('createdAt', 'desc').onSnapshot(function(snap){
+      worriesCache = snap.docs.map(function(d){ return Object.assign({id: d.id}, d.data()); });
+      wEls.loading.hidden = true;
+      renderWorries();
+      if (openWorryId) renderWorryDetail();
+    }, function(err){
+      wEls.loading.hidden = true;
+    });
+
+    dbRef.collection('notices').orderBy('createdAt', 'desc').onSnapshot(function(snap){
+      noticesCache = snap.docs.map(function(d){ return Object.assign({id: d.id}, d.data()); });
+      nEls.loading.hidden = true;
+      renderNotices();
+      if (openNoticeId) renderNoticeDetail();
+    }, function(err){
+      nEls.loading.hidden = true;
+    });
+  }
+
+  init();
+})();
+</script>
+
+</body>
+</html>

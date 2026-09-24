@@ -273,6 +273,14 @@
   .two-col{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
   @media (max-width:420px){ .two-col{grid-template-columns:1fr;} }
   .form-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:18px;}
+  .swatch-row{display:flex; flex-wrap:wrap; gap:8px;}
+  .swatch-btn{width:34px; height:34px; border-radius:8px; border:2px solid var(--border); padding:0; cursor:pointer;}
+  .swatch-btn:hover{border-color:var(--border-lit);}
+  .swatch-btn.selected{border-color:var(--accent); box-shadow:0 0 0 2px rgba(0,229,255,0.35);}
+  .emoji-row{display:flex; flex-wrap:wrap; gap:6px;}
+  .emoji-btn{width:38px; height:38px; border-radius:8px; border:1.5px solid var(--border); background:var(--bg-grid); color:var(--text); font-size:18px; padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .emoji-btn:hover{border-color:var(--border-lit);}
+  .emoji-btn.selected{border-color:var(--accent2); background:rgba(255,138,61,0.16);}
 
   .detail-thumb{width:100%; height:180px; border-bottom:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:56px;}
   .detail-thumb img{width:100%; height:100%; object-fit:cover;}
@@ -328,7 +336,7 @@
 <div class="gate" id="gateOverlay">
   <div class="gate-card">
     <div class="brand" style="justify-content:center; margin-bottom:18px;">
-      <div class="brand-badge">2th</div>
+      <div class="brand-badge">2nd</div>
       <div>
         <div class="brand-title">청도지2기 대기실</div>
         <div class="brand-sub" style="justify-content:center;">입장하려면 이름, 접속 비밀번호, 개인 PIN을 입력해주세요</div>
@@ -357,7 +365,7 @@
 <div class="wrap">
   <div class="topbar">
     <div class="brand">
-      <div class="brand-badge">2th</div>
+      <div class="brand-badge">2nd</div>
       <div>
         <div class="brand-title">청도지2기 대기실</div>
         <div class="brand-sub"><span class="live-dot"></span>청도지 군산 2기 참가자들을 위한 커뮤니티 공간</div>
@@ -440,7 +448,7 @@
 <div class="overlay" id="createOverlay" hidden>
   <div class="modal">
     <div class="modal-head">
-      <h2>방 만들기</h2>
+      <h2 id="createFormTitle">방 만들기</h2>
       <button class="modal-close" id="createClose" aria-label="닫기">✕</button>
     </div>
     <div class="modal-body">
@@ -470,22 +478,28 @@
           </div>
         </div>
         <div class="field">
-          <label for="f-image">대표 이미지 URL (선택)</label>
-          <input id="f-image" name="imageUrl" type="url" placeholder="https://...">
-          <div class="hint">이미지 링크를 붙여넣으면 카드 썸네일로 보여요. 비워두면 자동 생성된 아이콘이 대신 표시돼요.</div>
+          <label>배너 색상</label>
+          <div class="swatch-row" id="f-swatchRow"></div>
+          <input type="hidden" id="f-themeHue" name="themeHue" value="200">
+        </div>
+        <div class="field">
+          <label>배너 아이콘 (선택)</label>
+          <div class="emoji-row" id="f-emojiRow"></div>
+          <input type="hidden" id="f-emoji" name="emoji" value="">
+          <div class="hint">모임을 잘 나타내는 아이콘을 골라보세요. 고르지 않아도 괜찮아요.</div>
         </div>
         <div class="field">
           <label for="f-desc">모임 소개</label>
           <textarea id="f-desc" name="description" required maxlength="800" placeholder="모이는 장소, 준비물, 진행 방식 등을 자유롭게 적어주세요."></textarea>
         </div>
-        <div class="field">
+        <div class="field" id="f-pinField">
           <label for="f-pin">관리 비밀번호 (숫자 4자리)</label>
-          <input id="f-pin" name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="0000">
+          <input id="f-pin" name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="0000">
           <div class="hint">나중에 방을 수정하거나 마감·삭제할 때 필요해요. 잊지 않게 기억해두세요.</div>
         </div>
         <div class="form-actions">
           <button type="button" class="btn btn-ghost" id="createCancel">취소</button>
-          <button type="submit" class="btn btn-primary">방 만들기</button>
+          <button type="submit" class="btn btn-primary" id="createSubmitBtn">방 만들기</button>
         </div>
       </form>
     </div>
@@ -723,7 +737,17 @@
 (function(){
   var dbRef = null;
   var isAdmin = false;
-  var adminPin = null;
+
+  /* 카카오톡 인앱 브라우저 등 일부 환경에서는, 텍스트 입력창에 포커스가 없는 상태로
+     백스페이스를 누르면 브라우저가 이를 '뒤로가기'로 해석해서 페이지가 리셋되고
+     열려 있던 팝업이 그대로 닫혀버리는 문제가 있습니다. 아래 코드는 그 오작동을 막아요. */
+  document.addEventListener('keydown', function(e){
+    if (e.key !== 'Backspace') return;
+    var el = document.activeElement;
+    var tag = el && el.tagName;
+    var isEditable = tag === 'INPUT' || tag === 'TEXTAREA' || (el && el.isContentEditable);
+    if (!isEditable) e.preventDefault();
+  }, true);
 
   /* ---------- shared helpers ---------- */
   function hashHue(str){
@@ -731,9 +755,11 @@
     for (var i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) % 360; }
     return Math.abs(h);
   }
-  function placeholderStyle(title){
-    var hue = hashHue(title || 'room');
+  function hueGradientStyle(hue){
     return 'background:linear-gradient(135deg, hsl(' + hue + ' 65% 20%), hsl(' + ((hue+45)%360) + ' 70% 12%));';
+  }
+  function placeholderStyle(title){
+    return hueGradientStyle(hashHue(title || 'room'));
   }
   var STICKY_COLORS = ['c-yellow','c-pink','c-blue','c-green'];
   function stickyColorClass(seed){
@@ -808,12 +834,10 @@
       }
       function onCancel(){ cleanup(); resolve(null); }
       function onKey(e){
-        if (e.key === 'Escape'){ onCancel(); }
-        else if (e.key === 'Enter' && opts.showInput){ e.preventDefault(); onConfirm(); }
+        if (e.key === 'Enter' && opts.showInput){ e.preventDefault(); onConfirm(); }
       }
       confirmBtn.addEventListener('click', onConfirm);
       cancelBtn.addEventListener('click', onCancel);
-      overlay.addEventListener('click', function(e){ if (e.target === overlay) onCancel(); });
       document.addEventListener('keydown', onKey);
 
       if (opts.showInput) inputEl.focus(); else confirmBtn.focus();
@@ -882,7 +906,6 @@
      same name — from any browser — must match the same PIN. */
   var GATE_KEY = 'cheongdoji2_gate_v1';
   var currentVisitorName = '';
-  var gatePassword = null;
   var gateEls = {
     overlay: document.getElementById('gateOverlay'),
     form: document.getElementById('gateForm'),
@@ -912,34 +935,24 @@
 
   gateEls.form.addEventListener('submit', async function(e){
     e.preventDefault();
-    if (!gatePassword) return;
     var name = gateEls.form.name.value.trim();
     var pw = gateEls.form.password.value;
     var pin = gateEls.form.pin.value.trim();
     if (!name){ showToast('이름을 입력해주세요.'); return; }
     if (!pw){ showToast('접속 비밀번호를 입력해주세요.'); return; }
-    if (pw !== gatePassword){ showToast('접속 비밀번호가 일치하지 않아요.'); return; }
     if (!/^[0-9]{4}$/.test(pin)){ showToast('개인 PIN은 숫자 4자리로 입력해주세요.'); return; }
     if (!dbRef){ showToast('본인 확인 기능을 불러오지 못했어요. 새로고침 후 다시 시도해주세요.'); return; }
 
     gateEls.submit.disabled = true;
     gateEls.submit.textContent = '확인 중...';
     try{
-      var q = await dbRef.collection('gateUsers').where('name', '==', name).limit(1).get();
-      if (q.empty){
-        // first time this name is used — register it with this PIN
-        await dbRef.collection('gateUsers').add({name: name, pin: pin, createdAt: new Date().toISOString()});
-      } else {
-        var existing = q.docs[0].data();
-        if (existing.pin !== pin){
-          showToast('이미 등록된 이름이에요. 처음 등록할 때 정한 개인 PIN을 입력해주세요.');
-          return;
-        }
-      }
+      // 접속 비밀번호와 개인 PIN은 Firestore 보안 규칙이 서버 쪽에서 직접 대조해요.
+      // 값 자체는 어떤 경우에도 브라우저로 내려오지 않고, 맞았는지 틀렸는지 결과만 돌아옵니다.
+      await dbRef.doc('gateUsers/' + name).set({pin: pin, password: pw, updatedAt: new Date().toISOString()});
       writeSavedGate(name);
       passGate(name);
     }catch(e){
-      showToast('확인 중 문제가 생겼어요. 다시 시도해주세요.');
+      showToast('접속 비밀번호가 틀렸거나, 이미 등록된 이름이라면 처음 정한 개인 PIN이 아니에요.');
     }finally{
       gateEls.submit.disabled = false;
       gateEls.submit.textContent = '입장하기';
@@ -978,6 +991,45 @@
     detailModal: document.getElementById('detailModal'),
   };
 
+  /* ---------- room banner customization (color swatch + optional emoji) ---------- */
+  var THEME_HUES = [200, 330, 25, 140, 260, 0, 48, 190];
+  var ROOM_EMOJIS = ['🏃','⚽','🚴','🧘','🎮','🎲','📚','🎬','🎨','🎤','🍜','☕','🍻','📷','🏕️','⛰️','🛶','🎳','🧩','🎧'];
+  var themeHueInput = document.getElementById('f-themeHue');
+  var emojiInput = document.getElementById('f-emoji');
+  var swatchRow = document.getElementById('f-swatchRow');
+  var emojiRow = document.getElementById('f-emojiRow');
+  THEME_HUES.forEach(function(hue){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'swatch-btn';
+    b.setAttribute('style', hueGradientStyle(hue));
+    b.setAttribute('aria-label', '배너 색상 선택');
+    b.addEventListener('click', function(){
+      themeHueInput.value = String(hue);
+      Array.prototype.forEach.call(swatchRow.children, function(c){ c.classList.remove('selected'); });
+      b.classList.add('selected');
+    });
+    swatchRow.appendChild(b);
+  });
+  ROOM_EMOJIS.forEach(function(em){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'emoji-btn'; b.textContent = em;
+    b.addEventListener('click', function(){
+      var already = emojiInput.value === em;
+      emojiInput.value = already ? '' : em;
+      Array.prototype.forEach.call(emojiRow.children, function(c){ c.classList.remove('selected'); });
+      if (!already) b.classList.add('selected');
+    });
+    emojiRow.appendChild(b);
+  });
+  function selectSwatch(hue){
+    themeHueInput.value = String(hue);
+    Array.prototype.forEach.call(swatchRow.children, function(c, i){ c.classList.toggle('selected', THEME_HUES[i] === hue); });
+  }
+  function selectEmoji(em){
+    emojiInput.value = em || '';
+    Array.prototype.forEach.call(emojiRow.children, function(c, i){ c.classList.toggle('selected', !!em && ROOM_EMOJIS[i] === em); });
+  }
+
   function statusInfo(room){
     var full = room.participants.length >= room.capacityMax;
     if (room.status === 'closed') return {label:'종료', cls:'closed'};
@@ -988,7 +1040,14 @@
   function buildThumb(room, big){
     var wrap = document.createElement('div');
     wrap.className = big ? 'detail-thumb' : 'card-thumb';
-    if (room.imageUrl){
+    if (typeof room.themeHue === 'number'){
+      wrap.setAttribute('style', hueGradientStyle(room.themeHue));
+      if (room.emoji){
+        var em = document.createElement('div');
+        em.textContent = room.emoji;
+        wrap.appendChild(em);
+      }
+    } else if (room.imageUrl){
       var img = document.createElement('img');
       img.src = room.imageUrl;
       img.alt = room.title;
@@ -1165,12 +1224,14 @@
       var label = document.createElement('div'); label.className = 'muted';
       label.textContent = authedRooms[room.id] ? '🔓 방장 인증됨' : '🔓 플랫폼 관리자 권한으로 관리 중';
       var actions = document.createElement('div'); actions.className = 'admin-actions';
+      var editBtn = document.createElement('button'); editBtn.className = 'btn btn-ghost btn-sm'; editBtn.textContent = '내용 수정';
+      editBtn.addEventListener('click', function(){ closeDetail(); openCreate(room); });
       var toggleBtn = document.createElement('button'); toggleBtn.className = 'btn btn-ghost btn-sm';
       toggleBtn.textContent = closed ? '모집 재개' : '모집 마감';
       toggleBtn.addEventListener('click', function(){ handleToggleStatus(room.id); });
       var delBtn = document.createElement('button'); delBtn.className = 'btn btn-danger btn-sm'; delBtn.textContent = '방 삭제';
       delBtn.addEventListener('click', function(){ handleDelete(room.id); });
-      actions.appendChild(toggleBtn); actions.appendChild(delBtn);
+      actions.appendChild(editBtn); actions.appendChild(toggleBtn); actions.appendChild(delBtn);
       line.appendChild(label); line.appendChild(actions);
       adminBox.appendChild(line);
     } else {
@@ -1221,8 +1282,12 @@
   async function handlePinCheck(room){
     var input = await showPromptModal('방 관리 비밀번호', '4자리 숫자를 입력해주세요', 'numeric', 4);
     if (input === null) return;
-    if (input === room.pin){ authedRooms[room.id] = true; renderDetail(); }
-    else showToast('비밀번호가 일치하지 않아요.');
+    try{
+      // roomPins 문서는 읽을 수 없고, 같은 값을 다시 제출했을 때만 쓰기가 성공해요 —
+      // 이 성공 여부만으로 비밀번호가 맞는지 확인합니다.
+      await dbRef.doc('roomPins/' + room.id).update({pin: input});
+      authedRooms[room.id] = true; renderDetail();
+    }catch(e){ showToast('비밀번호가 일치하지 않아요.'); }
   }
 
   async function handleToggleStatus(roomId){
@@ -1251,37 +1316,84 @@
     if (!title){ showToast('모임 제목을 입력해주세요.'); return; }
     if (!host){ showToast('주최자 닉네임을 입력해주세요.'); return; }
     if (!description){ showToast('모임 소개를 입력해주세요.'); return; }
-    var pin = form.pin.value.trim();
-    if (!/^[0-9]{4}$/.test(pin)){ showToast('관리 비밀번호는 숫자 4자리로 입력해주세요.'); return; }
     var capacity = parseInt(form.capacity.value, 10);
     if (!capacity || capacity < 2){ showToast('모집 인원은 2명 이상으로 입력해주세요.'); return; }
     var dtVal = form.datetime.value;
     if (!dtVal){ showToast('모임 일시를 선택해주세요.'); return; }
     var iso;
     try{ iso = new Date(dtVal).toISOString(); }catch(err){ showToast('일시 형식이 올바르지 않아요.'); return; }
+    var themeHue = parseInt(form.themeHue.value, 10);
+    if (isNaN(themeHue)) themeHue = THEME_HUES[0];
+    var emoji = form.emoji.value;
 
-    var submitBtn = form.querySelector('button[type=submit]');
+    var submitBtn = document.getElementById('createSubmitBtn');
+
+    if (editingRoomId){
+      submitBtn.disabled = true; submitBtn.textContent = '수정하는 중...';
+      try{
+        await dbRef.doc('rooms/' + editingRoomId).update({
+          title: title, host: host, capacityMax: capacity, datetime: iso,
+          cost: form.cost.value.trim(), description: description,
+          themeHue: themeHue, emoji: emoji
+        });
+        var editedId = editingRoomId;
+        closeCreate();
+        if (openDetailId === editedId) renderDetail();
+      }catch(err){ showToast('수정에 실패했어요. 다시 시도해주세요.'); }
+      finally{ submitBtn.disabled = false; submitBtn.textContent = '수정 완료'; }
+      return;
+    }
+
+    var pin = form.pin.value.trim();
+    if (!/^[0-9]{4}$/.test(pin)){ showToast('관리 비밀번호는 숫자 4자리로 입력해주세요.'); return; }
+
     submitBtn.disabled = true; submitBtn.textContent = '만드는 중...';
     try{
-      await dbRef.collection('rooms').add({
-        title: title, host: host, pin: pin,
+      var newRoom = await dbRef.collection('rooms').add({
+        title: title, host: host,
         capacityMax: capacity, datetime: iso, cost: form.cost.value.trim(),
-        imageUrl: form.imageUrl.value.trim(), description: form.description.value.trim(),
+        description: description, themeHue: themeHue, emoji: emoji,
         status: 'open', participants: [], createdAt: new Date().toISOString()
       });
+      // 관리 비밀번호는 방 문서와 분리된, 절대 읽을 수 없는 문서에 따로 저장해요.
+      await dbRef.doc('roomPins/' + newRoom.id).set({pin: pin});
       form.reset(); closeCreate();
     }catch(err){ showToast('방 생성에 실패했어요. 다시 시도해주세요.'); }
     finally{ submitBtn.disabled = false; submitBtn.textContent = '방 만들기'; }
   }
 
-  function openCreate(){ els.createOverlay.hidden = false; els.createForm.title.focus(); }
-  function closeCreate(){ els.createOverlay.hidden = true; }
+  var editingRoomId = null;
+  function openCreate(room){
+    editingRoomId = room ? room.id : null;
+    document.getElementById('createFormTitle').textContent = room ? '방 정보 수정' : '방 만들기';
+    document.getElementById('createSubmitBtn').textContent = room ? '수정 완료' : '방 만들기';
+    document.getElementById('f-pinField').hidden = !!room;
+    els.createForm.reset();
+    if (room){
+      els.createForm.title.value = room.title;
+      els.createForm.host.value = room.host;
+      els.createForm.capacity.value = room.capacityMax;
+      els.createForm.cost.value = room.cost || '';
+      els.createForm.description.value = room.description || '';
+      try{
+        var d = new Date(room.datetime);
+        var pad = function(n){ return (n < 10 ? '0' : '') + n; };
+        els.createForm.datetime.value = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+      }catch(e){}
+      selectSwatch(typeof room.themeHue === 'number' ? room.themeHue : THEME_HUES[0]);
+      selectEmoji(room.emoji || '');
+    } else {
+      selectSwatch(THEME_HUES[0]);
+      selectEmoji('');
+    }
+    els.createOverlay.hidden = false;
+    els.createForm.title.focus();
+  }
+  function closeCreate(){ els.createOverlay.hidden = true; editingRoomId = null; }
 
-  els.createBtn.addEventListener('click', openCreate);
+  els.createBtn.addEventListener('click', function(){ openCreate(null); });
   els.createClose.addEventListener('click', closeCreate);
   els.createCancel.addEventListener('click', closeCreate);
-  els.createOverlay.addEventListener('click', function(e){ if (e.target === els.createOverlay) closeCreate(); });
-  els.detailOverlay.addEventListener('click', function(e){ if (e.target === els.detailOverlay) closeDetail(); });
   els.createForm.addEventListener('submit', handleCreateSubmit);
 
   /* ================= CAMPFIRE (모닥불) ================= */
@@ -1515,7 +1627,7 @@
       line.appendChild(label); line.appendChild(delBtn);
       adminBox.appendChild(line);
       body.appendChild(adminBox);
-    } else if (item.pin){
+    } else if (item.hasPin){
       var adminBox2 = document.createElement('div'); adminBox2.className = 'admin-box';
       var line2 = document.createElement('div'); line2.className = 'lock-line';
       var label2 = document.createElement('div'); label2.className = 'muted'; label2.textContent = '🔒 작성자이신가요?';
@@ -1533,8 +1645,10 @@
   async function handleCampfirePinCheck(item){
     var input = await showPromptModal('삭제 비밀번호', '4자리 숫자를 입력해주세요', 'numeric', 4);
     if (input === null) return;
-    if (input === item.pin){ authedCampfire[item.id] = true; renderCampfireDetail(); }
-    else showToast('비밀번호가 일치하지 않아요.');
+    try{
+      await dbRef.doc('campfirePins/' + item.id).update({pin: input});
+      authedCampfire[item.id] = true; renderCampfireDetail();
+    }catch(e){ showToast('비밀번호가 일치하지 않아요.'); }
   }
 
   async function handleCampfireDelete(id){
@@ -1572,18 +1686,19 @@
     var submitBtn = form.querySelector('button[type=submit]');
     submitBtn.disabled = true; submitBtn.textContent = '올리는 중...';
     try{
-      await dbRef.collection('campfire').add({
+      var newItem = await dbRef.collection('campfire').add({
         title: title,
         category: form.category.value.trim(),
         nickname: form.nickname.value.trim(),
         imageUrl: form.imageUrl.value.trim(),
         link: form.link.value.trim(),
-        pin: pin,
+        hasPin: !!pin,
         description: description,
         likes: 0,
         reviews: [],
         createdAt: new Date().toISOString()
       });
+      if (pin) await dbRef.doc('campfirePins/' + newItem.id).set({pin: pin});
       form.reset(); closeCampfireCreate();
     }catch(err){ showToast('등록에 실패했어요. 다시 시도해주세요.'); }
     finally{ submitBtn.disabled = false; submitBtn.textContent = '모닥불에 올리기'; }
@@ -1595,8 +1710,6 @@
   cEls.createBtn.addEventListener('click', openCampfireCreate);
   cEls.createClose.addEventListener('click', closeCampfireCreate);
   cEls.createCancel.addEventListener('click', closeCampfireCreate);
-  cEls.createOverlay.addEventListener('click', function(e){ if (e.target === cEls.createOverlay) closeCampfireCreate(); });
-  cEls.detailOverlay.addEventListener('click', function(e){ if (e.target === cEls.detailOverlay) closeCampfireDetail(); });
   cEls.createForm.addEventListener('submit', handleCampfireCreateSubmit);
 
   /* ================= WORRIES (고민 포스트잇) ================= */
@@ -1738,7 +1851,7 @@
       line.appendChild(label); line.appendChild(delBtn);
       adminBox.appendChild(line);
       body.appendChild(adminBox);
-    } else if (w.pin){
+    } else if (w.hasPin){
       var adminBox2 = document.createElement('div'); adminBox2.className = 'admin-box';
       var line2 = document.createElement('div'); line2.className = 'lock-line';
       var label2 = document.createElement('div'); label2.className = 'muted'; label2.textContent = '🔒 작성자이신가요?';
@@ -1756,8 +1869,10 @@
   async function handleWorryPinCheck(w){
     var input = await showPromptModal('삭제 비밀번호', '4자리 숫자를 입력해주세요', 'numeric', 4);
     if (input === null) return;
-    if (input === w.pin){ authedWorries[w.id] = true; renderWorryDetail(); }
-    else showToast('비밀번호가 일치하지 않아요.');
+    try{
+      await dbRef.doc('worryPins/' + w.id).update({pin: input});
+      authedWorries[w.id] = true; renderWorryDetail();
+    }catch(e){ showToast('비밀번호가 일치하지 않아요.'); }
   }
 
   async function handleWorryDelete(id){
@@ -1792,7 +1907,8 @@
     var submitBtn = wEls.createForm.querySelector('button[type=submit]');
     submitBtn.disabled = true; submitBtn.textContent = '붙이는 중...';
     try{
-      await dbRef.collection('worries').add({ text: text, pin: pin, replies: [], createdAt: new Date().toISOString() });
+      var newWorry = await dbRef.collection('worries').add({ text: text, hasPin: !!pin, replies: [], createdAt: new Date().toISOString() });
+      if (pin) await dbRef.doc('worryPins/' + newWorry.id).set({pin: pin});
       wEls.createForm.reset(); closeWorryCreate();
     }catch(err){ showToast('등록에 실패했어요. 다시 시도해주세요.'); }
     finally{ submitBtn.disabled = false; submitBtn.textContent = '익명으로 붙이기'; }
@@ -1804,8 +1920,6 @@
   wEls.createBtn.addEventListener('click', openWorryCreate);
   wEls.createClose.addEventListener('click', closeWorryCreate);
   wEls.createCancel.addEventListener('click', closeWorryCreate);
-  wEls.createOverlay.addEventListener('click', function(e){ if (e.target === wEls.createOverlay) closeWorryCreate(); });
-  wEls.detailOverlay.addEventListener('click', function(e){ if (e.target === wEls.detailOverlay) closeWorryDetail(); });
   wEls.createForm.addEventListener('submit', handleWorryCreateSubmit);
 
   /* ================= NOTICES (공지사항) ================= */
@@ -1962,8 +2076,6 @@
   nEls.createBtn.addEventListener('click', function(){ openNoticeForm(null); });
   nEls.formClose.addEventListener('click', closeNoticeForm);
   nEls.formCancel.addEventListener('click', closeNoticeForm);
-  nEls.formOverlay.addEventListener('click', function(e){ if (e.target === nEls.formOverlay) closeNoticeForm(); });
-  nEls.detailOverlay.addEventListener('click', function(e){ if (e.target === nEls.detailOverlay) closeNoticeDetail(); });
   nEls.form.addEventListener('submit', handleNoticeFormSubmit);
 
   /* ================= ADMIN ================= */
@@ -1982,17 +2094,17 @@
   async function handleAdminClick(){
     if (isAdmin){ isAdmin = false; updateAdminUI(); return; }
     if (!dbRef){ showToast('실시간 기능을 사용할 수 없어 관리자 로그인이 불가능해요.'); return; }
-    if (!adminPin){ showToast('관리자 설정을 아직 불러오지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
     var input = await showPromptModal('관리자 로그인', '관리자 비밀번호를 입력해주세요', 'password');
     if (input === null) return;
-    if (input === adminPin){ isAdmin = true; updateAdminUI(); }
-    else showToast('비밀번호가 일치하지 않아요.');
+    try{
+      await dbRef.doc('adminChecks/singleton').set({pin: input, at: new Date().toISOString()});
+      isAdmin = true; updateAdminUI();
+    }catch(e){ showToast('비밀번호가 일치하지 않아요.'); }
   }
   adminBtn.addEventListener('click', handleAdminClick);
 
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape'){ closeCreate(); closeDetail(); closeCampfireCreate(); closeCampfireDetail(); closeWorryCreate(); closeWorryDetail(); closeNoticeForm(); closeNoticeDetail(); }
-  });
+  /* 팝업은 팝업 상단의 닫기(✕) 버튼을 눌러야만 닫혀요. Esc나 바깥(어두운 배경) 클릭으로
+     닫히지 않도록 일부러 리스너를 붙이지 않았습니다 — 글 쓰다가 실수로 날아가는 걸 막기 위해. */
 
   /* ================= INIT ================= */
   async function init(){
@@ -2013,22 +2125,9 @@
     cEls.createBtn.disabled = false;
     wEls.createBtn.disabled = false;
 
-    try{
-      var pinSnap = await dbRef.doc('config/admin').get();
-      adminPin = pinSnap.exists ? pinSnap.data().pin : null;
-    }catch(e){ adminPin = null; }
-
-    try{
-      var gateSnap = await dbRef.doc('config/gate').get();
-      gatePassword = gateSnap.exists ? gateSnap.data().password : null;
-    }catch(e){ gatePassword = null; }
     if (!savedGate){
-      if (gatePassword){
-        gateEls.submit.disabled = false;
-        gateEls.hint.textContent = '입장하면 이 브라우저에는 다음부터 자동으로 들어와져요.';
-      } else {
-        gateEls.hint.textContent = '접속 비밀번호가 아직 설정되지 않았어요. 관리자에게 문의해주세요.';
-      }
+      gateEls.submit.disabled = false;
+      gateEls.hint.textContent = '입장하면 이 브라우저에는 다음부터 자동으로 들어와져요.';
     }
 
     dbRef.collection('rooms').orderBy('createdAt', 'desc').onSnapshot(function(snap){

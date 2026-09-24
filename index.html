@@ -7,6 +7,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<!-- 카카오톡 공유하기: developers.kakao.com에서 앱을 만들고 아래 두 곳을 채워주세요.
+     1) 아래 script src의 버전 번호를, https://developers.kakao.com/docs/latest/ko/javascript/download 에 있는
+        "최신 버전 스크립트 태그"로 통째로 교체해주세요 (integrity 속성 포함).
+     2) Kakao.init('여기') 안에 발급받은 JavaScript 키를 넣어주세요. -->
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.3/kakao.min.js" integrity="sha384-oroumrnFVE0xtgqyDZJARgERibXg2C28380uaUZz2kHDS5CR7tu20eGiOU6GkTpy" crossorigin="anonymous"></script>
+<script>
+  try{
+    if (window.Kakao && !Kakao.isInitialized()) Kakao.init('db002a24492ed39d9c65ae8566439381');
+  }catch(e){ /* 카카오 SDK 로드 실패 시 공유 버튼은 안내 메시지만 뜨고 자연스럽게 무시돼요 */ }
+</script>
 <style>
   :root{
     --bg:#0a0e1a;
@@ -25,9 +35,9 @@
     --success-dim:#1f6b46;
     --danger:#f8717a;
     --danger-dim:#7a2f34;
-    --font-display:'Black Han Sans','Noto Sans KR',sans-serif;
-    --font-body:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;
-    --font-mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+    --font-display:'Black Han Sans','Noto Sans KR','Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji',sans-serif;
+    --font-body:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Malgun Gothic','Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji',sans-serif;
+    --font-mono:'JetBrains Mono','SFMono-Regular',Consolas,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji',monospace;
     color-scheme: dark;
   }
   *{box-sizing:border-box;}
@@ -861,6 +871,22 @@
     }, 2600);
   }
 
+  /* ---------- 카카오톡 공유하기 ---------- */
+  function shareToKakao(text, path){
+    if (!window.Kakao || !Kakao.isInitialized || !Kakao.isInitialized()){
+      showToast('카카오톡 공유 기능이 아직 설정되지 않았어요. (관리자: Kakao JavaScript 키 등록 필요)');
+      return;
+    }
+    var url = location.origin + location.pathname + path;
+    try{
+      Kakao.Share.sendDefault({
+        objectType: 'text',
+        text: text.slice(0, 200),
+        link: { mobileWebUrl: url, webUrl: url }
+      });
+    }catch(err){ showToast('카카오톡 공유에 실패했어요.'); }
+  }
+
   /* ---------- reply/review message deletion (shared by campfire reviews & worry replies) ---------- */
   var authedMsgs = {};
   function msgKey(parentType, parentId, createdAt){ return parentType + ':' + parentId + ':' + createdAt; }
@@ -928,6 +954,7 @@
   function passGate(name){
     currentVisitorName = name || '';
     gateEls.overlay.hidden = true;
+    tryDeepLink();
   }
 
   var savedGate = readSavedGate();
@@ -952,7 +979,7 @@
       writeSavedGate(name);
       passGate(name);
     }catch(e){
-      showToast('접속 비밀번호가 틀렸거나, 이미 등록된 이름이라면 처음 정한 개인 PIN이 아니에요.');
+      showToast('입장할 수 없어요. 초대코드가 틀렸거나, 참가자 명단에 없는 이름이거나, 이미 등록된 이름인데 처음 정한 개인 PIN이 아니에요.');
     }finally{
       gateEls.submit.disabled = false;
       gateEls.submit.textContent = '입장하기';
@@ -969,6 +996,23 @@
       document.getElementById('panel-'+n).hidden = (n !== name);
       document.getElementById('tab-'+n).classList.toggle('active', n === name);
     });
+  }
+
+  /* ---------- 카카오톡 공유 링크로 들어왔을 때 해당 글을 자동으로 열어줘요 ---------- */
+  var deepLinkHandled = false;
+  function tryDeepLink(){
+    if (deepLinkHandled) return;
+    if (!gateEls.overlay.hidden) return; // 입장 확인 전에는 열지 않아요
+    try{
+      var params = new URLSearchParams(location.search);
+      var roomId = params.get('room');
+      var noticeId = params.get('notice');
+      if (roomId && findRoom(roomId)){
+        switchTab('rooms'); openDetail(roomId); deepLinkHandled = true;
+      } else if (noticeId && findNotice(noticeId)){
+        switchTab('notices'); openNoticeDetail(noticeId); deepLinkHandled = true;
+      }
+    }catch(e){ /* 지원하지 않는 브라우저 등 — 조용히 무시 */ }
   }
 
   /* ================= ROOMS ================= */
@@ -1172,6 +1216,14 @@
     });
     body.appendChild(metaGrid);
 
+    var shareBtn = document.createElement('button');
+    shareBtn.type = 'button'; shareBtn.className = 'btn btn-ghost btn-sm'; shareBtn.style.marginBottom = '14px';
+    shareBtn.textContent = '🗨️ 카카오톡으로 공유';
+    shareBtn.addEventListener('click', function(){
+      shareToKakao('[청도지2기 대기방] ' + room.title + '\n' + formatDateTime(room.datetime) + ' · ' + (room.cost || '무료'), '?room=' + room.id);
+    });
+    body.appendChild(shareBtn);
+
     var descH = document.createElement('div'); descH.className = 'section-h'; descH.textContent = 'MOIM INFO — 모임 소개';
     body.appendChild(descH);
     var desc = document.createElement('div'); desc.className = 'desc-block'; desc.textContent = room.description || '';
@@ -1205,17 +1257,14 @@
 
     var full = room.participants.length >= room.capacityMax;
     var closed = room.status === 'closed';
+    var alreadyJoined = room.participants.some(function(p){ return p.name === currentVisitorName; });
     var joinRow = document.createElement('div'); joinRow.className = 'join-row';
-    var joinInput = document.createElement('input');
-    joinInput.id = 'joinNameInput'; joinInput.placeholder = '닉네임을 입력하세요'; joinInput.maxLength = 16;
-    joinInput.disabled = closed || full || !dbRef;
     var joinBtn = document.createElement('button');
     joinBtn.className = 'btn btn-primary btn-sm';
-    joinBtn.textContent = closed ? '종료된 모임' : (full ? '정원마감' : '참가하기');
-    joinBtn.disabled = closed || full || !dbRef;
-    joinBtn.addEventListener('click', function(){ handleJoin(room.id, joinInput); });
-    joinInput.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); handleJoin(room.id, joinInput); } });
-    joinRow.appendChild(joinInput); joinRow.appendChild(joinBtn);
+    joinBtn.textContent = closed ? '종료된 모임' : (alreadyJoined ? '참가 완료 ✓' : (full ? '정원마감' : (currentVisitorName ? (currentVisitorName + '(으)로 참가하기') : '참가하기')));
+    joinBtn.disabled = closed || full || !dbRef || alreadyJoined || !currentVisitorName;
+    joinBtn.addEventListener('click', function(){ handleJoin(room.id); });
+    joinRow.appendChild(joinBtn);
     body.appendChild(joinRow);
 
     var adminBox = document.createElement('div'); adminBox.className = 'admin-box';
@@ -1247,9 +1296,9 @@
     m.appendChild(body);
   }
 
-  async function handleJoin(roomId, inputEl){
-    var name = inputEl.value.trim();
-    if (!name){ inputEl.focus(); return; }
+  async function handleJoin(roomId){
+    var name = currentVisitorName;
+    if (!name){ showToast('접속 인증 후 이용해주세요.'); return; }
     if (!dbRef) return;
     try{
       var ref = dbRef.doc('rooms/' + roomId);
@@ -1260,7 +1309,6 @@
       if (data.participants.length >= data.capacityMax){ showToast('정원이 다 찼어요.'); return; }
       var updated = data.participants.concat([{name: name, joinedAt: new Date().toISOString()}]);
       await ref.update({participants: updated});
-      inputEl.value = '';
     }catch(e){ showToast('참가 처리에 실패했어요. 다시 시도해주세요.'); }
   }
 
@@ -1996,6 +2044,14 @@
     });
     body.appendChild(metaGrid);
 
+    var nShareBtn = document.createElement('button');
+    nShareBtn.type = 'button'; nShareBtn.className = 'btn btn-ghost btn-sm'; nShareBtn.style.marginBottom = '14px';
+    nShareBtn.textContent = '🗨️ 카카오톡으로 공유';
+    nShareBtn.addEventListener('click', function(){
+      shareToKakao('[청도지2기 알림] ' + n.title + (n.eventDate ? ('\n🗓 ' + n.eventDate) : ''), '?notice=' + n.id);
+    });
+    body.appendChild(nShareBtn);
+
     var desc = document.createElement('div'); desc.className = 'desc-block'; desc.textContent = n.body;
     body.appendChild(desc);
 
@@ -2135,6 +2191,7 @@
       els.loadingState.hidden = true;
       renderRooms();
       if (openDetailId) renderDetail();
+      tryDeepLink();
     }, function(err){
       els.loadingState.hidden = true;
       els.dbBanner.textContent = '⚠️ 실시간 데이터를 불러오는 중 문제가 생겼어요. 새로고침 해보세요.';
@@ -2164,6 +2221,7 @@
       nEls.loading.hidden = true;
       renderNotices();
       if (openNoticeId) renderNoticeDetail();
+      tryDeepLink();
     }, function(err){
       nEls.loading.hidden = true;
     });

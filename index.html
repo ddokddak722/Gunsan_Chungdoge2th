@@ -291,6 +291,11 @@
   .emoji-btn{width:38px; height:38px; border-radius:8px; border:1.5px solid var(--border); background:var(--bg-grid); color:var(--text); font-size:18px; padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center;}
   .emoji-btn:hover{border-color:var(--border-lit);}
   .emoji-btn.selected{border-color:var(--accent2); background:rgba(255,138,61,0.16);}
+  .emoji-btn.none-btn{width:auto; padding:0 12px; font-size:12px; font-family:var(--font-body); color:var(--text-dim);}
+  .picker-trigger{width:52px; height:52px; border-radius:10px; border:2px solid var(--border); padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--text);}
+  .picker-trigger:hover{border-color:var(--border-lit);}
+  .emoji-trigger{background:var(--bg-grid);}
+  .emoji-trigger.is-empty{color:var(--text-faint); font-size:26px;}
 
   .detail-thumb{width:100%; height:180px; border-bottom:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:56px;}
   .detail-thumb img{width:100%; height:100%; object-fit:cover;}
@@ -489,12 +494,13 @@
         </div>
         <div class="field">
           <label>배너 색상</label>
-          <div class="swatch-row" id="f-swatchRow"></div>
+          <button type="button" class="picker-trigger" id="f-colorTrigger" aria-label="배너 색상 선택 — 누르면 고를 수 있어요"></button>
           <input type="hidden" id="f-themeHue" name="themeHue" value="200">
+          <input type="hidden" id="f-themeSolid" name="themeSolid" value="">
         </div>
         <div class="field">
           <label>배너 아이콘 (선택)</label>
-          <div class="emoji-row" id="f-emojiRow"></div>
+          <button type="button" class="picker-trigger emoji-trigger is-empty" id="f-emojiTrigger" aria-label="배너 아이콘 선택 — 누르면 고를 수 있어요">＋</button>
           <input type="hidden" id="f-emoji" name="emoji" value="">
           <div class="hint">모임을 잘 나타내는 아이콘을 골라보세요. 고르지 않아도 괜찮아요.</div>
         </div>
@@ -666,12 +672,12 @@
   // Firebase 콘솔 > 프로젝트 설정(톱니바퀴) > 일반 탭 > 하단 "내 앱" > 웹 앱 > SDK 설정에서 확인
   // ============================================================
   const firebaseConfig = {
-    apiKey: "AIzaSyC5TvrDDAPQ5ccN4H7fDwud_Yvcv9CIBAs",
-    authDomain: "gunsan01-abef7.firebaseapp.com",
-    projectId: "gunsan01-abef7",
-    storageBucket: "gunsan01-abef7.firebasestorage.app",
-    messagingSenderId: "195385017724",
-    appId: "1:195385017724:web:d340c40914686a1e9a10f9"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
   };
   // ============================================================
 
@@ -768,6 +774,9 @@
   function hueGradientStyle(hue){
     return 'background:linear-gradient(135deg, hsl(' + hue + ' 65% 20%), hsl(' + ((hue+45)%360) + ' 70% 12%));';
   }
+  function solidHueStyle(hue){
+    return 'background: hsl(' + hue + ' 45% 18%);';
+  }
   function placeholderStyle(title){
     return hueGradientStyle(hashHue(title || 'room'));
   }
@@ -851,6 +860,37 @@
       document.addEventListener('keydown', onKey);
 
       if (opts.showInput) inputEl.focus(); else confirmBtn.focus();
+    });
+  }
+  function openPickerModal(opts){
+    return new Promise(function(resolve){
+      var overlay = document.createElement('div');
+      overlay.className = 'overlay show';
+      var modal = document.createElement('div'); modal.className = 'modal'; modal.style.maxWidth = '380px';
+
+      var head = document.createElement('div'); head.className = 'modal-head';
+      var h2 = document.createElement('h2'); h2.textContent = opts.title || '';
+      var closeBtn = document.createElement('button'); closeBtn.className = 'modal-close'; closeBtn.setAttribute('aria-label','닫기'); closeBtn.textContent = '✕';
+      head.appendChild(h2); head.appendChild(closeBtn);
+      modal.appendChild(head);
+
+      var body = document.createElement('div'); body.className = 'modal-body';
+      var grid = document.createElement('div'); grid.className = opts.gridClass || 'swatch-row';
+      opts.items.forEach(function(item){
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        opts.renderItem(item, btn);
+        if (opts.isSelected && opts.isSelected(item)) btn.classList.add('selected');
+        btn.addEventListener('click', function(){ cleanup(); resolve(item); });
+        grid.appendChild(btn);
+      });
+      body.appendChild(grid);
+      modal.appendChild(body);
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      function cleanup(){ if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }
+      closeBtn.addEventListener('click', function(){ cleanup(); resolve(undefined); });
     });
   }
   function showPromptModal(title, placeholder, inputType, maxLength){
@@ -1035,44 +1075,75 @@
     detailModal: document.getElementById('detailModal'),
   };
 
-  /* ---------- room banner customization (color swatch + optional emoji) ---------- */
-  var THEME_HUES = [200, 330, 25, 140, 260, 0, 48, 190];
-  var ROOM_EMOJIS = ['🏃','⚽','🚴','🧘','🎮','🎲','📚','🎬','🎨','🎤','🍜','☕','🍻','📷','🏕️','⛰️','🛶','🎳','🧩','🎧'];
+  /* ---------- room banner customization (color swatch + optional emoji, picked via popup) ---------- */
+  var THEME_SWATCHES = [
+    {hue:200, solid:false}, {hue:330, solid:false}, {hue:25, solid:false}, {hue:140, solid:false},
+    {hue:260, solid:false}, {hue:0, solid:false}, {hue:48, solid:false}, {hue:190, solid:false},
+    {hue:280, solid:false}, {hue:100, solid:false},
+    {hue:170, solid:true}, {hue:350, solid:true}
+  ];
+  var THEME_HUES = THEME_SWATCHES.map(function(s){ return s.hue; });
+  var ROOM_EMOJIS = ['🏃','⚽','🚴','🧘','🎮','🎲','📚','🎬','🎨','🎤','🍜','☕','🍻','📷','🏕️','⛰️','🛶','🎳','🧩','🎧','🏀','⚾','🏐','🏓','🎾','🥊','🧗','🏄','🏊','⛳','🎿','🏂','🛹','🤸','🍕','🍔','🍣','🍰','🍺','🥘','🍲','🧁','🌲','🌊','🔥','🌙','⭐','🌸','🍁','🏞️','🖌️','🎭','🎼','📝','💻','🧠','🎉','🥳','💬','✈️'];
   var themeHueInput = document.getElementById('f-themeHue');
+  var themeSolidInput = document.getElementById('f-themeSolid');
   var emojiInput = document.getElementById('f-emoji');
-  var swatchRow = document.getElementById('f-swatchRow');
-  var emojiRow = document.getElementById('f-emojiRow');
-  THEME_HUES.forEach(function(hue){
-    var b = document.createElement('button');
-    b.type = 'button'; b.className = 'swatch-btn';
-    b.setAttribute('style', hueGradientStyle(hue));
-    b.setAttribute('aria-label', '배너 색상 선택');
-    b.addEventListener('click', function(){
-      themeHueInput.value = String(hue);
-      Array.prototype.forEach.call(swatchRow.children, function(c){ c.classList.remove('selected'); });
-      b.classList.add('selected');
-    });
-    swatchRow.appendChild(b);
-  });
-  ROOM_EMOJIS.forEach(function(em){
-    var b = document.createElement('button');
-    b.type = 'button'; b.className = 'emoji-btn'; b.textContent = em;
-    b.addEventListener('click', function(){
-      var already = emojiInput.value === em;
-      emojiInput.value = already ? '' : em;
-      Array.prototype.forEach.call(emojiRow.children, function(c){ c.classList.remove('selected'); });
-      if (!already) b.classList.add('selected');
-    });
-    emojiRow.appendChild(b);
-  });
-  function selectSwatch(hue){
+  var colorTrigger = document.getElementById('f-colorTrigger');
+  var emojiTrigger = document.getElementById('f-emojiTrigger');
+
+  function currentSwatchStyle(hue, solid){
+    return solid ? solidHueStyle(hue) : hueGradientStyle(hue);
+  }
+  function updateColorTrigger(){
+    var hue = parseInt(themeHueInput.value, 10);
+    var solid = themeSolidInput.value === '1';
+    colorTrigger.setAttribute('style', currentSwatchStyle(hue, solid));
+  }
+  function updateEmojiTrigger(){
+    emojiTrigger.textContent = emojiInput.value || '＋';
+    emojiTrigger.classList.toggle('is-empty', !emojiInput.value);
+  }
+  function selectSwatch(hue, solid){
     themeHueInput.value = String(hue);
-    Array.prototype.forEach.call(swatchRow.children, function(c, i){ c.classList.toggle('selected', THEME_HUES[i] === hue); });
+    themeSolidInput.value = solid ? '1' : '';
+    updateColorTrigger();
   }
   function selectEmoji(em){
     emojiInput.value = em || '';
-    Array.prototype.forEach.call(emojiRow.children, function(c, i){ c.classList.toggle('selected', !!em && ROOM_EMOJIS[i] === em); });
+    updateEmojiTrigger();
   }
+  colorTrigger.addEventListener('click', async function(){
+    var curHue = parseInt(themeHueInput.value, 10);
+    var curSolid = themeSolidInput.value === '1';
+    var picked = await openPickerModal({
+      title: '배너 색상 선택',
+      items: THEME_SWATCHES,
+      gridClass: 'swatch-row',
+      isSelected: function(item){ return item.hue === curHue && !!item.solid === curSolid; },
+      renderItem: function(item, btn){
+        btn.className = 'swatch-btn';
+        btn.setAttribute('style', currentSwatchStyle(item.hue, item.solid));
+        btn.setAttribute('aria-label', item.solid ? '단색' : '그라데이션');
+      }
+    });
+    if (picked){ selectSwatch(picked.hue, picked.solid); }
+  });
+  emojiTrigger.addEventListener('click', async function(){
+    var curEm = emojiInput.value;
+    var pickList = [''].concat(ROOM_EMOJIS);
+    var picked = await openPickerModal({
+      title: '배너 아이콘 선택',
+      items: pickList,
+      gridClass: 'emoji-row',
+      isSelected: function(item){ return item === curEm; },
+      renderItem: function(item, btn){
+        if (item){ btn.className = 'emoji-btn'; btn.textContent = item; }
+        else { btn.className = 'emoji-btn none-btn'; btn.textContent = '없음'; }
+      }
+    });
+    if (picked !== undefined){ selectEmoji(picked); }
+  });
+  updateColorTrigger();
+  updateEmojiTrigger();
 
   function statusInfo(room){
     var full = room.participants.length >= room.capacityMax;
@@ -1085,7 +1156,7 @@
     var wrap = document.createElement('div');
     wrap.className = big ? 'detail-thumb' : 'card-thumb';
     if (typeof room.themeHue === 'number'){
-      wrap.setAttribute('style', hueGradientStyle(room.themeHue));
+      wrap.setAttribute('style', room.themeSolid ? solidHueStyle(room.themeHue) : hueGradientStyle(room.themeHue));
       if (room.emoji){
         var em = document.createElement('div');
         em.textContent = room.emoji;
@@ -1372,6 +1443,7 @@
     try{ iso = new Date(dtVal).toISOString(); }catch(err){ showToast('일시 형식이 올바르지 않아요.'); return; }
     var themeHue = parseInt(form.themeHue.value, 10);
     if (isNaN(themeHue)) themeHue = THEME_HUES[0];
+    var themeSolid = form.themeSolid.value === '1';
     var emoji = form.emoji.value;
 
     var submitBtn = document.getElementById('createSubmitBtn');
@@ -1382,7 +1454,7 @@
         await dbRef.doc('rooms/' + editingRoomId).update({
           title: title, host: host, capacityMax: capacity, datetime: iso,
           cost: form.cost.value.trim(), description: description,
-          themeHue: themeHue, emoji: emoji
+          themeHue: themeHue, themeSolid: themeSolid, emoji: emoji
         });
         var editedId = editingRoomId;
         closeCreate();
@@ -1400,7 +1472,7 @@
       var newRoom = await dbRef.collection('rooms').add({
         title: title, host: host,
         capacityMax: capacity, datetime: iso, cost: form.cost.value.trim(),
-        description: description, themeHue: themeHue, emoji: emoji,
+        description: description, themeHue: themeHue, themeSolid: themeSolid, emoji: emoji,
         status: 'open', participants: [], createdAt: new Date().toISOString()
       });
       // 관리 비밀번호는 방 문서와 분리된, 절대 읽을 수 없는 문서에 따로 저장해요.
@@ -1428,10 +1500,10 @@
         var pad = function(n){ return (n < 10 ? '0' : '') + n; };
         els.createForm.datetime.value = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
       }catch(e){}
-      selectSwatch(typeof room.themeHue === 'number' ? room.themeHue : THEME_HUES[0]);
+      selectSwatch(typeof room.themeHue === 'number' ? room.themeHue : THEME_HUES[0], !!room.themeSolid);
       selectEmoji(room.emoji || '');
     } else {
-      selectSwatch(THEME_HUES[0]);
+      selectSwatch(THEME_HUES[0], false);
       selectEmoji('');
     }
     els.createOverlay.hidden = false;
